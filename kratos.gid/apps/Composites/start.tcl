@@ -13,7 +13,8 @@ proc ::Composites::Init { } {
     set kratos_name $::Dam::kratos_name
     
     set dir [apps::getMyDir "Composites"]
-    set ::Model::ValidSpatialDimensions [list 2D 3D]
+    #set ::Model::ValidSpatialDimensions [list 2D 3D]
+    spdAux::SetSpatialDimmension 2D
     
     # Allow to open the tree
     set ::spdAux::TreeVisibility 1
