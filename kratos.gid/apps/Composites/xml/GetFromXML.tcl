@@ -26,7 +26,9 @@ proc ::Composites::xml::MultiAppEvent {args} {
 }
 
 proc Composites::xml::CustomTree { args } {
-    Dam::xml::CustomTree
+    if {[catch {Dam::xml::CustomTree} fid]} {
+        W "Error during Dam::xml::CustomTree\n$fid"
+    }
     
     set TypeOfProblem [[customlib::GetBaseRoot] selectNodes [spdAux::getRoute DamTypeofProblem]]
     $TypeOfProblem setAttribute values Mechanical

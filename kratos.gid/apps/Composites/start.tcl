@@ -19,7 +19,7 @@ proc ::Composites::Init { } {
     # Allow to open the tree
     set ::spdAux::TreeVisibility 1
     LoadMyFiles
-    ::spdAux::CreateDimensionWindow
+    #::spdAux::CreateDimensionWindow
     
 }
 
