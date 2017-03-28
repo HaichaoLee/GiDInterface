@@ -15,6 +15,7 @@
   <appLink n="Pfem" 			public="1" pn="Pfem" active="0" appid="Pfem" prefix="PFEM_"/>
   <appLink n="StenosisWizard" 	public="1" pn="Stenosis Wizard" active="0" appid="StenosisWizard" prefix="StenosisWizard"/>
   <appLink n="Dam" 				public="1" pn="Dam" active="0" appid="Dam" prefix="Dam"/>
+  <appLink n="Composites" 			public="1" pn="Composites" active="0" appid="Composites" prefix="CS"/>
   
   <blockdata n="units" pn="Units" icon="units" open_window="0">
     <value n='units_mesh' pn='Mesh units' unit_mesh_definition="1"/>
