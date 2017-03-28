@@ -46,5 +46,7 @@ proc ::Composites::StartWizardWindow { } {
     Wizard::CreateWindow
     
 }
-
+proc ::Composites::CustomToolbarItems { } {
+    Kratos::ToolbarAddItem "Wizard" "example.png" [list -np- ::Composites::StartWizardWindow] [= "Start wizard window"]   
+}
 ::Composites::Init
