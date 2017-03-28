@@ -1,16 +1,18 @@
-namespace eval ::Dam {
+namespace eval ::Composites {
     # Variable declaration
     variable dir
     variable kratos_name
 }
 
-proc ::Dam::Init { } {
+proc ::Composites::Init { } {
     # Variable initialization
     variable dir
     variable kratos_name
-    set kratos_name "DamApplication"
     
-    set dir [apps::getMyDir "Dam"]
+    apps::LoadAppById "Dam"
+    set kratos_name $::Dam::kratos_name
+    
+    set dir [apps::getMyDir "Composites"]
     set ::Model::ValidSpatialDimensions [list 2D 3D]
     
     # Allow to open the tree
@@ -20,7 +22,7 @@ proc ::Dam::Init { } {
     
 }
 
-proc ::Dam::LoadMyFiles { } {
+proc ::Composites::LoadMyFiles { } {
     variable dir
     
     uplevel #0 [list source [file join $dir xml GetFromXML.tcl]]
@@ -28,4 +30,4 @@ proc ::Dam::LoadMyFiles { } {
     uplevel #0 [list source [file join $dir write writeProjectParameters.tcl]]
 }
 
-::Dam::Init
+::Composites::Init
