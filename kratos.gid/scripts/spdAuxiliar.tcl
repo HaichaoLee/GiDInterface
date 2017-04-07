@@ -1012,17 +1012,19 @@ proc spdAux::injectProcs { basenode  args} {
         set f "::$appId"
         append f "::dir"
         set nf [file join [subst $$f] xml Procs.spd]
-        set xml [tDOM::xmlReadFile $nf]
-        set newnode [dom parse [string trim $xml]]
-        set xmlNode [$newnode documentElement]
-        
-        foreach in [$xmlNode getElementsByTagName "proc"] {
-            # This allows an app to overwrite mandatory procs
-            set procn [$in @n]
-            set pastnode [[$basenode parent] selectNodes "./proc\[@n='$procn'\]"]
-            if {$pastnode ne ""} {gid_groups_conds::delete [$pastnode toXPath]}
+        if {[file exists $nf]} {
+            set xml [tDOM::xmlReadFile $nf]
+            set newnode [dom parse [string trim $xml]]
+            set xmlNode [$newnode documentElement]
             
-            [$basenode parent] appendChild $in
+            foreach in [$xmlNode getElementsByTagName "proc"] {
+                # This allows an app to overwrite mandatory procs
+                set procn [$in @n]
+                set pastnode [[$basenode parent] selectNodes "./proc\[@n='$procn'\]"]
+                if {$pastnode ne ""} {gid_groups_conds::delete [$pastnode toXPath]}
+                
+                [$basenode parent] appendChild $in
+            }
         }
         $basenode delete
     }
