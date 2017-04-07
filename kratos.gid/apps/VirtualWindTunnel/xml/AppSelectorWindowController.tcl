@@ -26,7 +26,7 @@ proc VirtualWindTunnel::AppSelectorWindow { } {
     set row 0
     foreach appname $appspn appid $appsid imgid $images {
         set img  [apps::getImgFrom VirtualWindTunnel $imgid]
-        ttk::button $w.information.img$appid -image $img -command [list apps::setActiveApp $appid]
+        ttk::button $w.information.img$appid -image $img -command [list VirtualWindTunnel::changetoApp $w $appid]
         ttk::label $w.information.text$appid -text $appname
         
         grid $w.information.img$appid -column $col -row 0
@@ -39,3 +39,11 @@ proc VirtualWindTunnel::AppSelectorWindow { } {
     
     grid $w.information
 }
+proc VirtualWindTunnel::changetoApp {w appid} {
+    if {[winfo exist $w]} {destroy $w}
+    spdAux::deactiveApp "VirtualWindTunnel"
+    apps::setAppArgument "LoadTree"
+    apps::setActiveApp $appid
+    set ::Model::ValidSpatialDimensions [list 3D]
+    spdAux::SetSpatialDimmension "3D"
+}    

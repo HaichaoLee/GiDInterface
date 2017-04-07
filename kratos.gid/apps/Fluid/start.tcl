@@ -26,7 +26,7 @@ proc ::Fluid::Init { } {
     dict set attributes UseIntervals 1
 
     LoadMyFiles
-    if {[apps::getActiveAppId] eq "Fluid"} {::Fluid::FluidAppSelectorWindow}
+    if {[apps::getAppArgument] eq ""} {::Fluid::FluidAppSelectorWindow} {apps::setAppArgument ""}
 }
 
 proc ::Fluid::LoadMyFiles { } {

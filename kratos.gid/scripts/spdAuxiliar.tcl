@@ -109,7 +109,8 @@ proc spdAux::processAppIncludes { root } {
             set f [file join $dir apps $appid xml Main.spd]
             set processedAppnode [customlib::ProcessIncludesRecurse $f $dir]
             $root insertBefore $processedAppnode $elem
-            $elem delete
+            # $elem delete
+            $elem setAttribute "active" 0
         }
     }
 }
@@ -127,24 +128,25 @@ proc spdAux::reactiveApp { } {
 }
 
 proc spdAux::deactiveApp { appid } {
-    
     set root [customlib::GetBaseRoot]
     [$root selectNodes "hiddenfield\[@n='activeapp'\]"] setAttribute v ""
     foreach elem [$root getElementsByTagName "appLink"] {
-        if {$appid eq [$elem getAttribute "appid"] && [$elem getAttribute "active"] eq "1"} {
+        if {$appid eq [$elem getAttribute "appid"]} {
             $elem setAttribute "active" 0
+            set oldcont [$root selectNodes "./container\[@n='$appid'\]"] 
+            if {$oldcont ne ""} {$oldcont delete}
             break
         } 
     }
 }
 proc spdAux::activeApp { appid } {
-    #W "Active $appid"
     variable initwind
     
     set root [customlib::GetBaseRoot]
     [$root selectNodes "hiddenfield\[@n='activeapp'\]"] setAttribute v $appid
+    set previous [$root selectNodes "./container\[@n='$appid'\]"]
     foreach elem [$root getElementsByTagName "appLink"] {
-        if {$appid eq [$elem getAttribute "appid"] && [$elem getAttribute "active"] eq "0"} {
+        if {$appid eq [$elem getAttribute "appid"] && [$elem getAttribute "active"] eq "0" && $previous eq ""} {
             $elem setAttribute "active" 1
         } else {
             $elem setAttribute "active" 0

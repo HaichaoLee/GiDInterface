@@ -34,7 +34,6 @@ proc ::EmbeddedFluid::Init { } {
     Kratos::AddRestoreVar "::GidPriv(DuplicateEntities)"
     set ::GidPriv(DuplicateEntities) 1
 
-    #::spdAux::CreateDimensionWindow
 }
 
 proc ::EmbeddedFluid::LoadMyFiles { } {
