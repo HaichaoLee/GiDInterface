@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?><!-- -*- coding: utf-8; mode: SGML -*- -->
-<Kratos_data show_menubutton_about="0" version='5.0.1'> 
+<Kratos_data show_menubutton_about="0" version='5.0.1'>
   <groups/>
   <units>
   </units>
   <!-- Fill this fields to automatically active an App without the init window -->
   <hiddenfield n="activeapp" active="0" v="" state="disabled"/>
   <value n="nDim" pn="Dimension" un="nDim" v="undefined" state="disabled" values="undefined,2D,2Da,3D" dict="undefined,Undefined,2D,2D,2Da,2D axisymmetric,3D,3D"/>
-  
-  <appLink n="Structural"		public="1" pn="Structural" active="0" appid="Structural" prefix="ST"/>
-  <appLink n="Solid" 			public="1" pn="Solid" active="0" appid="Solid" prefix="SL"/>
-  <appLink n="Fluid" 			public="1" pn="Fluid" active="0" appid="Fluid" prefix="FL"/>
-  <appLink n="EmbeddedFluid" 	public="0" pn="Embedded fluid" active="0" appid="EmbeddedFluid" prefix="EMBFL"/>
-  <appLink n="PotentialFluid" 	public="0" pn="Potential fluid" active="0" appid="PotentialFluid" prefix="PTFL"/>
-  <appLink n="WindTunnel" 	public="1" pn="Wind tunnel" active="0" appid="WindTunnel" prefix="WTFL"/>
-  <appLink n="FSI" 				public="1" pn="FSI" active="0" appid="FSI" prefix="FSI"/>
-  <appLink n="Pfem" 			public="1" pn="Pfem" active="0" appid="Pfem" prefix="PFEM_"/>
-  <appLink n="StenosisWizard" 	public="1" pn="Stenosis Wizard" active="0" appid="StenosisWizard" prefix="StenosisWizard"/>
-  <appLink n="Dam" 				public="1" pn="Dam" active="0" appid="Dam" prefix="Dam"/>
-	<appLink n="Numa" 			public="1" pn="Numa" active="0" appid="Numa" prefix="Numa"/>
 
-  
+  <appLink n="Structural"		    public="1" pn="Structural" active="0" appid="Structural" prefix="ST"/>
+  <appLink n="Solid" 			    public="1" pn="Solid" active="0" appid="Solid" prefix="SL"/>
+  <appLink n="Fluid" 			    public="1" pn="Fluid" active="0" appid="Fluid" prefix="FL"/>
+  <appLink n="EmbeddedFluid" 	    public="0" pn="Embedded fluid" active="0" appid="EmbeddedFluid" prefix="EMBFL"/>
+  <appLink n="PotentialFluid" 	    public="0" pn="Potential fluid" active="0" appid="PotentialFluid" prefix="PTFL"/>
+  <appLink n="VirtualWindTunnel"    public="1" pn="Virtual Wind Tunnel (VWT)" active="0" appid="VirtualWindTunnel" prefix="VWTFL"/>
+  <appLink n="FSI" 				    public="1" pn="FSI" active="0" appid="FSI" prefix="FSI"/>
+  <appLink n="Pfem" 			    public="1" pn="Pfem" active="0" appid="Pfem" prefix="PFEM_"/>
+  <appLink n="StenosisWizard" 	    public="1" pn="Stenosis Wizard" active="0" appid="StenosisWizard" prefix="StenosisWizard"/>
+  <appLink n="Dam" 				    public="1" pn="Dam" active="0" appid="Dam" prefix="Dam"/>
+  <appLink n="Numa" 			    public="1" pn="Numa" active="0" appid="Numa" prefix="Numa"/>
+
+
   <blockdata n="units" pn="Units" icon="units" open_window="0">
     <value n='units_mesh' pn='Mesh units' unit_mesh_definition="1"/>
     <value n='units_system' pn='Units system' units_system_definition="1">
-      <dependencies node="//*[@unit_definition or @unit_mesh_definition='1']" att1='change_units_system' v1='{@v}'/> 
+      <dependencies node="//*[@unit_definition or @unit_mesh_definition='1']" att1='change_units_system' v1='{@v}'/>
     </value>
-  </blockdata>     
+  </blockdata>
   <procs>
 	<proc n='OkNewCondition' args='args'>
 	  <![CDATA[
@@ -47,7 +47,7 @@
 	  return [spdAux::ProcGetElementsValues $domNode $args]
 	  ]]>
 	</proc>
-	
+
 	<proc n='GetSolutionStrategies' args='args'>
 	  <![CDATA[
 	  return [spdAux::ProcGetSolutionStrategies $domNode $args]
@@ -58,7 +58,7 @@
 		return [spdAux::ProcGetSchemes $domNode $args]
 	  ]]>
 	</proc>
-		
+
 	<proc n='GetConstitutiveLaws' args='args'>
 	  <![CDATA[
 	  return [spdAux::ProcGetConstitutiveLaws $domNode $args]
@@ -139,7 +139,7 @@
 	  <![CDATA[
 		return [spdAux::ProcCheckDimension $domNode $args]
 	  ]]>
-	  
+
 	</proc>
 	<proc n='getStateFromXPathValue' args='args'>
 	  <![CDATA[
@@ -153,12 +153,12 @@
     </proc>
     <proc n='edit_database_list' args='args'>
       <![CDATA[
-	  return [spdAux::ProcEdit_database_list $domNode {*}$args]  
+	  return [spdAux::ProcEdit_database_list $domNode {*}$args]
       ]]>
     </proc>
 	<proc n='CambioMat' args='args'>
 	  <![CDATA[
-	  return [spdAux::ProcCambioMat $domNode $args] 
+	  return [spdAux::ProcCambioMat $domNode $args]
 	  ]]>
 	</proc>
 	<proc n='ConditionState' args='args'>
@@ -171,7 +171,7 @@
 		return [spdAux::ProcConditionParameterState $domNode $args]
 	  ]]>
 	</proc>
-	
+
 	  <proc n='SolStratParamState' args='args'>
 	  <![CDATA[
 		return [spdAux::ProcSolStratParamState $domNode $args]
@@ -181,7 +181,7 @@
 	  <![CDATA[
 		return [spdAux::ProcSchemeParamState $domNode $args]
 	  ]]>
-	</proc>	   
+	</proc>
 	  <proc n='ConstLawOutputState' args='args'>
 	  <![CDATA[
 		return [spdAux::ProcConstLawOutputState $domNode $args]
@@ -192,7 +192,7 @@
 		return [spdAux::ProcElementOutputState $domNode $args]
 	  ]]>
 	</proc>
-	  
+
 	  <proc n='ActiveIfAnyPartState' args='args'>
 	  <![CDATA[
 	  return [spdAux::ProcActiveIfAnyPartState $domNode $args]
@@ -203,7 +203,7 @@
 	  return [spdAux::ProcActiveIfRestartAvailable $domNode $args]
 	  ]]>
 	</proc>
-	  
+
 		  <proc n='DisableIfUniqueName' args='args'>
 	  <![CDATA[
 		catch {[get_domnode_attribute $domNode dict]}
@@ -246,7 +246,7 @@
 				return "normal"
           ]]>
         </proc>
-	   
+
 	  <proc n='getIntervals' args='args'>
 	  <![CDATA[
 		return [spdAux::ProcGetIntervals $domNode $args]
@@ -282,7 +282,7 @@
 		return [spdAux::ProcFileDict $domNode $args]
 	  ]]>
     </proc>
-	  
+
     <proc n='AddFile' args='args'>
       <![CDATA[
 	  if {[get_domnode_attribute $domNode v] eq "- Add new file"} {
@@ -307,5 +307,5 @@
   <display_options frame_width="186"/>
   <blockdata n="Internal data" state="hidden">
     <value n="lognoter_file" v=""/>
-  </blockdata>  
+  </blockdata>
 </Kratos_data>

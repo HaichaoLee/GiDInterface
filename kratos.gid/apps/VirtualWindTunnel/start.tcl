@@ -1,4 +1,4 @@
-namespace eval ::WindTunnel {
+namespace eval ::VirtualWindTunnel {
     # Variable declaration
     variable dir
     variable prefix
@@ -6,7 +6,7 @@ namespace eval ::WindTunnel {
     variable kratos_name
 }
 
-proc ::WindTunnel::Init { } {
+proc ::VirtualWindTunnel::Init { } {
     # Variable initialization
     variable dir
     variable prefix
@@ -16,10 +16,10 @@ proc ::WindTunnel::Init { } {
     apps::LoadAppById "Fluid"
     set kratos_name $::Fluid::kratos_name
 
-    set dir [apps::getMyDir "WindTunnel"]
+    set dir [apps::getMyDir "VirtualWindTunnel"]
     set attributes [dict create]
 
-    set prefix WTFL
+    set prefix VWTFL
 
     set ::Model::ValidSpatialDimensions [list 3D]
     spdAux::SetSpatialDimmension "3D"
@@ -35,12 +35,12 @@ proc ::WindTunnel::Init { } {
     #::spdAux::CreateDimensionWindow
 }
 
-proc ::WindTunnel::LoadMyFiles { } {
+proc ::VirtualWindTunnel::LoadMyFiles { } {
     variable dir
 
 }
 
-proc ::WindTunnel::GetAttribute {name} {
+proc ::VirtualWindTunnel::GetAttribute {name} {
     variable attributes
     set value ""
     if {[dict exists $attributes $name]} {set value [dict get $attributes $name]}
@@ -48,4 +48,4 @@ proc ::WindTunnel::GetAttribute {name} {
 }
 
 
-::WindTunnel::Init
+::VirtualWindTunnel::Init
