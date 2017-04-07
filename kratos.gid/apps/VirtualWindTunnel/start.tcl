@@ -26,11 +26,12 @@ proc ::VirtualWindTunnel::Init { } {
     dict set attributes UseIntervals 0
 
     LoadMyFiles
+    VirtualWindTunnel::AppSelectorWindow
 }
 
 proc ::VirtualWindTunnel::LoadMyFiles { } {
     variable dir
-
+    uplevel #0 [list source [file join $dir xml AppSelectorWindowController.tcl]]
 }
 
 proc ::VirtualWindTunnel::CustomToolbarItems { } {
