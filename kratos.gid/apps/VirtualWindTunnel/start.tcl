@@ -11,11 +11,7 @@ proc ::VirtualWindTunnel::Init { } {
     variable dir
     variable prefix
     variable attributes
-    variable kratos_name
-
-    apps::LoadAppById "Fluid"
-    set kratos_name $::Fluid::kratos_name
-
+    
     set dir [apps::getMyDir "VirtualWindTunnel"]
     set attributes [dict create]
 
@@ -25,14 +21,11 @@ proc ::VirtualWindTunnel::Init { } {
     spdAux::SetSpatialDimmension "3D"
 
     # Allow to open the tree
-    set ::spdAux::TreeVisibility 1
+    set ::spdAux::TreeVisibility 0
 
-    dict set attributes UseIntervals 1
+    dict set attributes UseIntervals 0
 
     LoadMyFiles
-    set ::GidPriv(DuplicateEntities) 1
-
-    #::spdAux::CreateDimensionWindow
 }
 
 proc ::VirtualWindTunnel::LoadMyFiles { } {
