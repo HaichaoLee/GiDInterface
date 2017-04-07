@@ -33,6 +33,10 @@ proc ::VirtualWindTunnel::LoadMyFiles { } {
 
 }
 
+proc ::VirtualWindTunnel::CustomToolbarItems { } {
+    return -1
+}
+
 proc ::VirtualWindTunnel::GetAttribute {name} {
     variable attributes
     set value ""
