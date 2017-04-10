@@ -1,11 +1,14 @@
 namespace eval Fluid::xml {
     # Namespace variables declaration
     variable dir
+    variable lastImportMeshSize
 }
 
 proc Fluid::xml::Init { } {
     # Namespace variables inicialization
     variable dir
+    variable lastImportMeshSize
+    set lastImportMeshSize 1000
     Model::InitVariables dir $Fluid::dir
     
     Model::getSolutionStrategies Strategies.xml
@@ -30,6 +33,10 @@ proc Fluid::xml::CustomTree { args } {
     set root [customlib::GetBaseRoot]
     if {[$root selectNodes "[spdAux::getRoute Results]/condition\[@n='Drag'\]"] eq ""} {
         gid_groups_conds::addF [spdAux::getRoute Results] include [list n Drag active 1 path {apps/Fluid/xml/Drag.spd}]
+    }
+
+    if {"WindTunnelToolBar" in [apps::getAppArguments]} {
+        spdAux::SetValueOnTreeItem state normal FLImportedParts
     }
     
     customlib::ProcessIncludes $::Kratos::kratos_private(Path)

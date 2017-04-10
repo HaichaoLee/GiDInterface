@@ -26,7 +26,7 @@ proc ::Fluid::Init { } {
     dict set attributes UseIntervals 1
 
     LoadMyFiles
-    if {"LoadTree" ni [apps::getAppArgument]} {::Fluid::FluidAppSelectorWindow} 
+    if {"LoadTree" ni [apps::getAppArguments]} {::Fluid::FluidAppSelectorWindow} 
 }
 
 proc ::Fluid::LoadMyFiles { } {
@@ -127,9 +127,9 @@ proc ::Fluid::CustomToolbarItems { } {
 proc ::Fluid::WindTunnelToolBar { } {
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml ImportWindowController.tcl]]
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml BoundingBoxWindowController.tcl]]
-    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- EmbeddedFluid::xml::ImportMeshWindow] [= "Import embedded mesh"]
+    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- Fluid::xml::ImportMeshWindow] [= "Import embedded mesh"]
     Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Move the geometry/mesh"]
-    Kratos::ToolbarAddItem "Box" "box.png" [list -np- EmbeddedFluid::xml::BoundingBox::CreateWindow] [= "Generate the bounding box"]
+    Kratos::ToolbarAddItem "Box" "box.png" [list -np- Fluid::xml::BoundingBox::CreateWindow] [= "Generate the bounding box"]
 }
 
 

@@ -1,10 +1,10 @@
-namespace eval EmbeddedFluid::xml::BoundingBox {
+namespace eval Fluid::xml::BoundingBox {
     variable winpath
     variable box
     variable boxname
 }
 
-proc EmbeddedFluid::xml::BoundingBox::Init {} {
+proc Fluid::xml::BoundingBox::Init {} {
     variable winpath
     set winpath ".gid.bboxwindow"
     variable box
@@ -18,7 +18,7 @@ proc EmbeddedFluid::xml::BoundingBox::Init {} {
     set boxname "FluidBox"
 }
 
-proc EmbeddedFluid::xml::BoundingBox::CreateWindow { } {
+proc Fluid::xml::BoundingBox::CreateWindow { } {
     variable winpath
     #Init
     set w $winpath
@@ -34,10 +34,10 @@ proc EmbeddedFluid::xml::BoundingBox::CreateWindow { } {
     wm title $w [= "Bounding box window"]
     wm attribute $w -topmost 1
     
-    EmbeddedFluid::xml::BoundingBox::RefreshWindow 
+    Fluid::xml::BoundingBox::RefreshWindow 
 }
 
-proc EmbeddedFluid::xml::BoundingBox::RefreshWindow { } {
+proc Fluid::xml::BoundingBox::RefreshWindow { } {
     variable winpath
     set w $winpath
     if {[winfo exists $w.fr1]} {destroy $w.fr1}
@@ -48,9 +48,9 @@ proc EmbeddedFluid::xml::BoundingBox::RefreshWindow { } {
     set buts [ttk::frame $w.buts -style BottomFrame.TFrame]
 
     ttk::button $buts.q -text Close -command [list destroy $w] -style BottomFrame.TButton
-    ttk::button $buts.ok -text "Create Box" -command [list EmbeddedFluid::xml::BoundingBox::BuildBox] -style BottomFrame.TButton
-    EmbeddedFluid::xml::BoundingBox::ModelInfoFrame $fr1
-    EmbeddedFluid::xml::BoundingBox::BoxDataFrame $fr2
+    ttk::button $buts.ok -text "Create Box" -command [list Fluid::xml::BoundingBox::BuildBox] -style BottomFrame.TButton
+    Fluid::xml::BoundingBox::ModelInfoFrame $fr1
+    Fluid::xml::BoundingBox::BoxDataFrame $fr2
     
     grid $buts.ok $buts.q -sticky sew
     
@@ -62,7 +62,7 @@ proc EmbeddedFluid::xml::BoundingBox::RefreshWindow { } {
     if { $::tcl_version >= 8.5 } { grid anchor $buts center }
 }
 
-proc EmbeddedFluid::xml::BoundingBox::ModelInfoFrame {w} {
+proc Fluid::xml::BoundingBox::ModelInfoFrame {w} {
     lassign [GetCurrentBox] x2 y2 z2 x1 y1 z1
     set x1 [format %.3g $x1]
     set x2 [format %.3g $x2]
@@ -100,31 +100,31 @@ proc EmbeddedFluid::xml::BoundingBox::ModelInfoFrame {w} {
     grid $lZ $lminZ $eminZ $lmaxZ $emaxZ -sticky w
 }
 
-proc EmbeddedFluid::xml::BoundingBox::BoxDataFrame {w} {
+proc Fluid::xml::BoundingBox::BoxDataFrame {w} {
     set tDist [= "Distance"]
     set size 8
     set lX [ttk::label $w.lX -text $tDist]
     set lminX [ttk::label $w.lminX -text "-X:"]
-    set eminX [ttk::entry $w.eminX -textvariable EmbeddedFluid::xml::BoundingBox::box(x1)]
+    set eminX [ttk::entry $w.eminX -textvariable Fluid::xml::BoundingBox::box(x1)]
     wcb::callback $eminX before insert wcb::checkEntryForReal
     set lmaxX [ttk::label $w.lmaxX -text "+X:"]
-    set emaxX [ttk::entry $w.emaxX -textvariable EmbeddedFluid::xml::BoundingBox::box(x2)]
+    set emaxX [ttk::entry $w.emaxX -textvariable Fluid::xml::BoundingBox::box(x2)]
     wcb::callback $emaxX before insert wcb::checkEntryForReal
     
     set lY [ttk::label $w.lY -text $tDist]
     set lminY [ttk::label $w.lminY -text "-Y:"]
-    set eminY [ttk::entry $w.eminY -textvariable EmbeddedFluid::xml::BoundingBox::box(y1)]
+    set eminY [ttk::entry $w.eminY -textvariable Fluid::xml::BoundingBox::box(y1)]
     wcb::callback $eminY before insert wcb::checkEntryForReal
     set lmaxY [ttk::label $w.lmaxY -text "+Y:"]
-    set emaxY [ttk::entry $w.emaxY -textvariable EmbeddedFluid::xml::BoundingBox::box(y2)]
+    set emaxY [ttk::entry $w.emaxY -textvariable Fluid::xml::BoundingBox::box(y2)]
     wcb::callback $emaxY before insert wcb::checkEntryForReal
     
     set lZ [ttk::label $w.lZ -text $tDist]
     set lminZ [ttk::label $w.lminZ -text "-Z:"]
-    set eminZ [ttk::entry $w.eminZ -textvariable EmbeddedFluid::xml::BoundingBox::box(z1)]
+    set eminZ [ttk::entry $w.eminZ -textvariable Fluid::xml::BoundingBox::box(z1)]
     wcb::callback $eminZ before insert wcb::checkEntryForReal
     set lmaxZ [ttk::label $w.lmaxZ -text "+Z:"]
-    set emaxZ [ttk::entry $w.emaxZ -textvariable EmbeddedFluid::xml::BoundingBox::box(z2)]
+    set emaxZ [ttk::entry $w.emaxZ -textvariable Fluid::xml::BoundingBox::box(z2)]
     wcb::callback $emaxZ before insert wcb::checkEntryForReal
     
     grid $lX $lminX $eminX $lmaxX $emaxX -sticky e
@@ -135,7 +135,7 @@ proc EmbeddedFluid::xml::BoundingBox::BoxDataFrame {w} {
     grid columnconfigure $w {2 4} -weight 1
 }
 
-proc EmbeddedFluid::xml::BoundingBox::DestroyBox { } {
+proc Fluid::xml::BoundingBox::DestroyBox { } {
     variable boxname
     
     if {[GiD_Layers exists $boxname]} {
@@ -143,17 +143,17 @@ proc EmbeddedFluid::xml::BoundingBox::DestroyBox { } {
     }
 }
 
-proc EmbeddedFluid::xml::BoundingBox::BuildBox { } {
+proc Fluid::xml::BoundingBox::BuildBox { } {
     variable boxname
     
     GidUtils::DisableGraphics
     
-    EmbeddedFluid::xml::BoundingBox::DestroyBox
+    Fluid::xml::BoundingBox::DestroyBox
     
     GiD_Layers create $boxname
     GiD_Layers edit to_use $boxname
     
-    EmbeddedFluid::xml::BoundingBox::CreateBoxGeom
+    Fluid::xml::BoundingBox::CreateBoxGeom
     if {![GiD_Groups exists $boxname]} {GiD_Groups create $boxname}
     
     GiD_EntitiesGroups assign $boxname volumes  [GiD_EntitiesLayers get $boxname volumes]
@@ -169,7 +169,7 @@ proc EmbeddedFluid::xml::BoundingBox::BuildBox { } {
     GidUtils::UpdateWindow LAYER
 }
 
-proc EmbeddedFluid::xml::BoundingBox::CreateBoxGeom { } {
+proc Fluid::xml::BoundingBox::CreateBoxGeom { } {
     variable boxname
     variable box
     lassign [GetCurrentBox] x2 y2 z2 x1 y1 z1
@@ -189,11 +189,11 @@ proc EmbeddedFluid::xml::BoundingBox::CreateBoxGeom { } {
     GidUtils::SetWarnLine [= "Bounding box created: Xo = %s  Yo = %s  Zo = %s  Xf = %s  Yf = %s  Zf = %s" $Xo $Yo $Zo $Xf $Yf $Zf]
 }
     
-proc EmbeddedFluid::xml::BoundingBox::GetCurrentBox { } {
+proc Fluid::xml::BoundingBox::GetCurrentBox { } {
     variable boxname
     set layers [lsearch -all -inline -not -exact [GiD_Layers list] $boxname]
     set modelbox [GiD_Info Layers -bbox {*}$layers]
     return {*}$modelbox
 }
 
-EmbeddedFluid::xml::BoundingBox::Init
+Fluid::xml::BoundingBox::Init

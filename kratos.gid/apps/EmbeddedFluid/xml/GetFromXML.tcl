@@ -55,6 +55,7 @@ proc EmbeddedFluid::xml::CustomTree { args } {
     if {[$root selectNodes "[spdAux::getRoute Results]/condition\[@n='EmbeddedDrag'\]"] eq ""} {
         gid_groups_conds::addF [spdAux::getRoute Results] include [list n EmbeddedDrag active 1 path {apps/EmbeddedFluid/xml/EmbeddedDrag.spd}]
     }
+    spdAux::SetValueOnTreeItem state normal FLImportedParts
     customlib::ProcessIncludes $::Kratos::kratos_private(Path)
     spdAux::parseRoutes
     # Erase when Fractional step is available
@@ -65,6 +66,20 @@ proc EmbeddedFluid::xml::CustomTree { args } {
     #spdAux::SetValueOnTreeItem values MN EMBFLScheme
     #spdAux::SetValueOnTreeItem dict "MN,Monolitic generic scheme" EMBFLScheme
 
+}
+
+# Events for wind tunnel 
+proc EmbeddedFluid::xml::WindTunnelImportPart {args} {
+    set args {*}$args
+    set group_id [dict get $args group]
+    set mesh_size [dict get $args size]
+
+    set basepath [spdAux::getRoute FLImportedParts]
+    set gNode [spdAux::AddConditionGroupOnXPath $basepath $group_id]
+    set xpath [$gNode toXPath]
+    gid_groups_conds::addF $xpath value [list n MeshSize pn {Mesh size} v $mesh_size state disabled]
+    [$gNode parent] setAttribute tree_state open
+    $gNode setAttribute open_window 1
 }
 
 EmbeddedFluid::xml::Init
