@@ -100,7 +100,6 @@ proc ::Fluid::ChangeAppTo {appid} {
     switch $appid {
         "Fluid" {
             [[customlib::GetBaseRoot] selectNodes "value\[@n='nDim'\]"] setAttribute v undefined
-            ::spdAux::CreateDimensionWindow
         }
         "EmbeddedFluid" {
             spdAux::deactiveApp Fluid
@@ -111,11 +110,8 @@ proc ::Fluid::ChangeAppTo {appid} {
             spdAux::deactiveApp Fluid
             apps::setActiveApp $appid
         }
-        default {
-            ::spdAux::CreateDimensionWindow
-        }
     }
-
+    ::spdAux::CreateDimensionWindow
 }
 
 proc ::Fluid::CustomToolbarItems { } {

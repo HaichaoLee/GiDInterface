@@ -13,9 +13,9 @@ proc ::PotentialFluid::Init { } {
     variable prefix
     variable attributes
     variable kratos_name
-    set kratos_name CompressiblePotentialFlowApplication
 
     apps::LoadAppById "Fluid"
+    set kratos_name CompressiblePotentialFlowApplication
 
     set dir [apps::getMyDir "PotentialFluid"]
     set attributes [dict create]
@@ -33,7 +33,6 @@ proc ::PotentialFluid::Init { } {
     Kratos::AddRestoreVar "::GidPriv(DuplicateEntities)"
     set ::GidPriv(DuplicateEntities) 1
 
-    ::spdAux::CreateDimensionWindow
 }
 
 proc ::PotentialFluid::LoadMyFiles { } {
