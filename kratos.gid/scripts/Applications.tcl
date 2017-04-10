@@ -6,16 +6,16 @@
 namespace eval apps {
     variable activeApp
     variable appList
-    variable app_argument
+    variable app_arguments
 }
 
 proc apps::Init { } {
     variable activeApp
     variable appList
-    variable app_argument
+    variable app_arguments
     set activeApp ""
     set appList [list ]
-    set app_argument ""
+    set app_arguments [list ]
 }
 
 proc apps::setActiveApp {appid} {
@@ -59,12 +59,16 @@ proc apps::getActiveAppId { } {
 }
 
 proc apps::setAppArgument { a } {
-    variable app_argument;
-    set app_argument $a
+    variable app_arguments
+    set app_arguments $a
 }
-proc apps::getAppArgument { } {
-    variable app_argument;
-    return $app_argument
+proc apps::addAppArgument { a } {
+    variable app_arguments
+    lappend app_arguments $a
+}
+proc apps::getAppArguments { } {
+    variable app_arguments
+    return $app_arguments
 }
 proc apps::getAppById { id } {
     variable appList

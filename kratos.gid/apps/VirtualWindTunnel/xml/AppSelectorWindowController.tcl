@@ -42,7 +42,8 @@ proc VirtualWindTunnel::AppSelectorWindow { } {
 proc VirtualWindTunnel::changetoApp {w appid} {
     if {[winfo exist $w]} {destroy $w}
     spdAux::deactiveApp "VirtualWindTunnel"
-    apps::setAppArgument "LoadTree"
+    apps::addAppArgument "LoadTree"
+    apps::addAppArgument "WindTunnelToolBar"
     apps::setActiveApp $appid
     set ::Model::ValidSpatialDimensions [list 3D]
     spdAux::SetSpatialDimmension "3D"

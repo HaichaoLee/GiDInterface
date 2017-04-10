@@ -26,7 +26,7 @@ proc ::Fluid::Init { } {
     dict set attributes UseIntervals 1
 
     LoadMyFiles
-    if {[apps::getAppArgument] eq ""} {::Fluid::FluidAppSelectorWindow} {apps::setAppArgument ""}
+    if {"LoadTree" ni [apps::getAppArgument]} {::Fluid::FluidAppSelectorWindow} 
 }
 
 proc ::Fluid::LoadMyFiles { } {
@@ -119,7 +119,8 @@ proc ::Fluid::CustomToolbarItems { } {
     uplevel #0 [list source [file join $dir examples examples.tcl]]
     Kratos::ToolbarAddItem "Example" "example.png" [list -np- ::Fluid::examples::CylinderInFlow] [= "Example\nCylinder in air flow"]   
 
-    if {"WindTunnelToolBar" in [apps::getAppArgument]} {
+    if {"WindTunnelToolBar" in [apps::getAppArguments]} {
+        Kratos::ToolbarAddItem "SpacerWindTunnel" "" "" ""
         WindTunnelToolBar
     }
 }
