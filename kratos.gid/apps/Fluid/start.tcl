@@ -118,6 +118,18 @@ proc ::Fluid::CustomToolbarItems { } {
     variable dir
     uplevel #0 [list source [file join $dir examples examples.tcl]]
     Kratos::ToolbarAddItem "Example" "example.png" [list -np- ::Fluid::examples::CylinderInFlow] [= "Example\nCylinder in air flow"]   
+
+    if {"WindTunnelToolBar" in [apps::getAppArgument]} {
+        WindTunnelToolBar
+    }
 }
+proc ::Fluid::WindTunnelToolBar { } {
+    uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml ImportWindowController.tcl]]
+    uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml BoundingBoxWindowController.tcl]]
+    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- EmbeddedFluid::xml::ImportMeshWindow] [= "Import embedded mesh"]
+    Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Move the geometry/mesh"]
+    Kratos::ToolbarAddItem "Box" "box.png" [list -np- EmbeddedFluid::xml::BoundingBox::CreateWindow] [= "Generate the bounding box"]
+}
+
 
 ::Fluid::Init

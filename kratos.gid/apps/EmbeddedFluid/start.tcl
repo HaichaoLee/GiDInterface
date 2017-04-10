@@ -40,8 +40,6 @@ proc ::EmbeddedFluid::LoadMyFiles { } {
     variable dir
 
     uplevel #0 [list source [file join $dir xml GetFromXML.tcl]]
-    uplevel #0 [list source [file join $dir xml ImportWindowController.tcl]]
-    uplevel #0 [list source [file join $dir xml BoundingBoxWindowController.tcl]]
     uplevel #0 [list source [file join $dir write write.tcl]]
     uplevel #0 [list source [file join $dir write writeProjectParameters.tcl]]
 }
@@ -54,9 +52,7 @@ proc ::EmbeddedFluid::GetAttribute {name} {
 }
 
 proc ::EmbeddedFluid::CustomToolbarItems { } {
-    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- EmbeddedFluid::xml::ImportMeshWindow] [= "Import embedded mesh"]
-    Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Move the geometry/mesh"]
-    Kratos::ToolbarAddItem "Box" "box.png" [list -np- EmbeddedFluid::xml::BoundingBox::CreateWindow] [= "Generate the bounding box"]
+    ::Fluid::WindTunnelToolBar
 }
 
 proc ::EmbeddedFluid::BeforeMeshGeneration {elementsize} {
