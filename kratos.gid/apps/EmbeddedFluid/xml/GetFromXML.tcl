@@ -70,16 +70,11 @@ proc EmbeddedFluid::xml::CustomTree { args } {
 
 # Events for wind tunnel 
 proc EmbeddedFluid::xml::WindTunnelImportPart {args} {
-    set args {*}$args
-    set group_id [dict get $args group]
-    set mesh_size [dict get $args size]
 
-    set basepath [spdAux::getRoute FLImportedParts]
-    set gNode [spdAux::AddConditionGroupOnXPath $basepath $group_id]
-    set xpath [$gNode toXPath]
-    gid_groups_conds::addF $xpath value [list n MeshSize pn {Mesh size} v $mesh_size state disabled]
-    [$gNode parent] setAttribute tree_state open
-    $gNode setAttribute open_window 1
+}
+
+proc EmbeddedFluid::xml::NeedToCropVolume { } {
+    return 0
 }
 
 EmbeddedFluid::xml::Init

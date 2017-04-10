@@ -43,4 +43,9 @@ proc Fluid::xml::CustomTree { args } {
     spdAux::parseRoutes
 }
 
+# Events for wind tunnel 
+proc Fluid::xml::NeedToCropVolume { } {
+    return 1
+}
+
 Fluid::xml::Init

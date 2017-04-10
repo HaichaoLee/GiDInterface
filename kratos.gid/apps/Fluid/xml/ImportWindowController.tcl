@@ -28,6 +28,7 @@ proc Fluid::xml::ImportMeshWindow { } {
     if {![GiD_Groups exists $model_name]} {GiD_Groups create $model_name}
     
     GiD_Process Mescape Geometry Edit ReConstruction OneSurfForEachElement Layer:$model_name escape 
+    if {[apps::ExecuteOnCurrentXML NeedToCropVolume]} {GiD_Process Mescape Utilities Collapse model Yes }
     GiD_EntitiesGroups assign $model_name surfaces [GiD_EntitiesLayers get $model_name surfaces]
     GiD_EntitiesGroups assign $model_name lines [GiD_EntitiesLayers get $model_name lines]
     GiD_EntitiesGroups assign $model_name points [GiD_EntitiesLayers get $model_name points]
@@ -43,7 +44,16 @@ proc Fluid::xml::ImportMeshWindow { } {
     
     GidUtils::SetWarnLine [= "STL %s imported!" $model_name]
     
-    apps::ExecuteOnCurrentXML WindTunnelImportPart [dict create group $model_name size $Fluid::xml::lastImportMeshSize]
+    set group_id $model_name
+    set mesh_size $Fluid::xml::lastImportMeshSize
+
+    set basepath [spdAux::getRoute FLImportedParts]
+    set gNode [spdAux::AddConditionGroupOnXPath $basepath $group_id]
+    set xpath [$gNode toXPath]
+    gid_groups_conds::addF $xpath value [list n MeshSize pn {Mesh size} v $mesh_size state disabled]
+    [$gNode parent] setAttribute tree_state open
+    $gNode setAttribute open_window 1
+    apps::ExecuteOnCurrentXML WindTunnelImportPart [dict create group $model_name size $mesh_size]
     
     spdAux::RequestRefresh
 }
