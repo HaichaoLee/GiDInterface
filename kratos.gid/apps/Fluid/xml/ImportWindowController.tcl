@@ -17,33 +17,33 @@ proc Fluid::xml::ImportMeshWindow { } {
     GidUtils::DisableGraphics
     GiD_Layers create $model_name
     GiD_Layers edit to_use $model_name
-    
+
     if {[lindex [GiD_Info Mesh] 0]} {
         GiD_Process Mescape Files STLRead Append $filename
     } else {
         GiD_Process Mescape Files STLRead $filename
     }
-    
+
 
     if {![GiD_Groups exists $model_name]} {GiD_Groups create $model_name}
-    
-    GiD_Process Mescape Geometry Edit ReConstruction OneSurfForEachElement Layer:$model_name escape 
+
+    GiD_Process Mescape Geometry Edit ReConstruction OneSurfForEachElement Layer:$model_name escape
     if {[apps::ExecuteOnCurrentXML NeedToCropVolume]} {GiD_Process Mescape Utilities Collapse model Yes }
     GiD_EntitiesGroups assign $model_name surfaces [GiD_EntitiesLayers get $model_name surfaces]
     GiD_EntitiesGroups assign $model_name lines [GiD_EntitiesLayers get $model_name lines]
     GiD_EntitiesGroups assign $model_name points [GiD_EntitiesLayers get $model_name points]
-    
-    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize selection {*}[GiD_EntitiesLayers get $model_name surfaces] MEscape 
 
-    
+    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize selection {*}[GiD_EntitiesLayers get $model_name surfaces] MEscape
+
+
     GidUtils::EnableGraphics
     GidUtils::UpdateWindow GROUPS
     GidUtils::UpdateWindow LAYER
-    
+
     GiD_Process 'Zoom Frame
-    
+
     GidUtils::SetWarnLine [= "STL %s imported!" $model_name]
-    
+
     set group_id $model_name
     set mesh_size $Fluid::xml::lastImportMeshSize
 
@@ -54,8 +54,16 @@ proc Fluid::xml::ImportMeshWindow { } {
     [$gNode parent] setAttribute tree_state open
     $gNode setAttribute open_window 1
     apps::ExecuteOnCurrentXML WindTunnelImportPart [dict create group $model_name size $mesh_size]
-    
+    apps::ExecuteOnCurrentXML WindTunnelImportCheck $model_name
+
     spdAux::RequestRefresh
+}
+
+proc Fluid::xml::WindTunnelImportCheck { model_name } {
+    if {[GiD_Info layers -count -entities lines -higherentity 1 $model_name] > 0 } {
+        W "The imported geometry is not watertight. Please check lines with higher entity value equal to 1 to find volume holes."
+        GiD_Process Mescape Utilities DrawHigher Lines
+    }
 }
 
 proc Fluid::xml::MoreImportOptions { f } {
@@ -63,7 +71,7 @@ proc Fluid::xml::MoreImportOptions { f } {
     ttk::label $f.lblGeometry -text [= "Mesh size"]:
     ttk::entry $f.entGeometry -textvariable Fluid::xml::lastImportMeshSize
     grid columnconfigure $f 1 -weight 1
-    grid $f.lblGeometry $f.entGeometry -sticky w 
+    grid $f.lblGeometry $f.entGeometry -sticky w
 
     variable export_dir
     if { ![info exists export_dir] } {
