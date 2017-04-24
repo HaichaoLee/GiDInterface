@@ -64,19 +64,25 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     
 }
 proc WindTunnelWizard::Wizard::NextFluid { } {
-    
-    
+    if {![GiD_Groups exists "FluidBox"]} {W "Fluid group must be named as 'FluidBox'"; return ""}
+    gid_groups_conds::delete "[spdAux::getRoute FLParts]/group"
+    set gnode [spdAux::AddConditionGroupOnXPath [spdAux::getRoute FLParts] "FluidBox"]
+    [$gnode selectNodes "./value\[@n = 'DENSITY'\]"] setAttribute v $::Wizard::wprops(Material,DENSITY,value)
+    [$gnode selectNodes "./value\[@n = 'VISCOSITY'\]"] setAttribute v $::Wizard::wprops(Material,VISCOSITY,value)
+
 }
 proc WindTunnelWizard::Wizard::GetFluidProperties { } {
-    set ::Wizard::wprops(Material,DENSITY,name) "Density"
-    set ::Wizard::wprops(Material,DENSITY,value) 1.225
-    set ::Wizard::wprops(Material,DENSITY,unit) "kg/m3"
+    set props [list DENSITY VISCOSITY]
+    foreach prop $props {
+        set node [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLParts]/group"]
+        if {$node eq ""} {set node [[customlib::GetBaseRoot] selectNodes [spdAux::getRoute FLParts]]}
+        set node [$node selectNodes "./value\[@n='$prop'\]"]
+        set ::Wizard::wprops(Material,$prop,name)  [get_domnode_attribute $node pn]
+        set ::Wizard::wprops(Material,$prop,value) [get_domnode_attribute $node v]
+        set ::Wizard::wprops(Material,$prop,unit)  [get_domnode_attribute $node units]
+    }
     
-    set ::Wizard::wprops(Material,VISCOSITY,name) "Kinematic viscosity"
-    set ::Wizard::wprops(Material,VISCOSITY,value) 1e-6
-    set ::Wizard::wprops(Material,VISCOSITY,unit) "m^2/s"
-    
-    return [list DENSITY VISCOSITY]
+    return $props
 }
 
 proc WindTunnelWizard::Wizard::Conditions { win } {
