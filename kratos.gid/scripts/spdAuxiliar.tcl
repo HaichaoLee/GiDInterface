@@ -731,7 +731,7 @@ proc spdAux::_injectCondsToTree {basenode cond_list {cond_type "normal"} } {
                         <value n='${inName}X' wn='[concat $n "_X"]' pn='X ${pn}' v='$vX' values='1,0' help='' state='$state'/>
                         <value n='${inName}Y' wn='[concat $n "_Y"]' pn='Y ${pn}' v='$vY' values='1,0' help='' state='$state'/>
                         <value n='${inName}Z' wn='[concat $n "_Z"]' pn='Z ${pn}' v='$vZ' values='1,0' help='' state='$zstate'/>"
-                } {
+                } else {
                     foreach i [list "X" "Y" "Z"] {
                         set fname "function_$inName"
                         set nodev "../value\[@n='${inName}$i'\]"
@@ -783,7 +783,12 @@ proc spdAux::_injectCondsToTree {basenode cond_list {cond_type "normal"} } {
                             append node "<value n='$fname' pn='$i function' v='' help='$help'  $zstate />"
                         }
                         set v "v$i"
-                        append node "<value n='${inName}$i' wn='[concat $n "_$i"]' pn='$i ${pn}' v='[set $v]' $has_units help='$help'  $zstate />"
+                        if { $vector_type eq "file" || $vector_type eq "tablefile" } {
+                            if {[set $v] eq ""} {set $v "- No file"}
+                            append node "<value n='${inName}$i' wn='[concat $n "_$i"]' pn='$i ${pn}' v='[set $v]' values='\[GetFilesValues\]' update_proc='AddFile' help='$help'  $zstate  type='$vector_type'/>"
+                        } else {
+                            append node "<value n='${inName}$i' wn='[concat $n "_$i"]' pn='$i ${pn}' v='[set $v]' $has_units help='$help'  $zstate />"
+                        }
                     }
                 }
                 
@@ -1945,7 +1950,12 @@ proc spdAux::ProcConditionParameterState {domNode args} {
     set cond_name [get_domnode_attribute $cond_node n]
 
     set cond [Model::getCondition $cond_name]
-    if {$cond eq ""} {W "No condition found with name $cond_name" ; return normal}
+    if {$cond eq ""} {
+        set cond [Model::getNodalConditionbyId $cond_name]
+        if {$cond eq ""} {
+            W "No condition found with name $cond_name" ; return normal
+        }
+    }
     set process_name [$cond getProcessName]
     set process [Model::GetProcess $process_name]
     set param [$process getInputPn $param_name]

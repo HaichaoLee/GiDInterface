@@ -320,6 +320,15 @@ proc Dam::write::ChangeFileNameforTableid { processList } {
                 set value [Dam::write::GetTableidFromFileid $filename]
                 dict set nodalProcess Parameters $paramName $value
             }
+            if {[$param getType] eq "vector" && [$param getAttribute vectorType] eq "tablefile" && [dict exists $nodalProcess Parameters $paramName] } {
+                for {set i 0} {$i < [llength [dict get $nodalProcess Parameters $paramName]]} {incr i} {
+                    set filename [lindex [dict get $nodalProcess Parameters $paramName] $i]
+                    set value [Dam::write::GetTableidFromFileid $filename]
+                    set values_list [dict get $nodalProcess Parameters $paramName]
+                    set values_list [lreplace $values_list $i $i $value]
+                    dict set nodalProcess Parameters $paramName $values_list
+                }
+            }
         }
         lappend returnList $nodalProcess
     }
@@ -404,12 +413,12 @@ proc Dam::write::GetConstructionDomainProcessDict { } {
         dict set construction_dict "kratos_module" "KratosMultiphysics.DamApplication"
         dict set construction_dict "process_name" "DamConstructionProcess"
         set params_dict [dict create]
-            set params [list Gravity_Direction Reservoir_Bottom_Coordinate_in_Gravity_Direction Height_Dam Number_of_phases]
-            foreach param $params {
-                dict set params_dict $param [get_domnode_attribute [$data_basenode selectNodes "./value\[@n='$param'\]"] v]
-            }
             dict set params_dict mesh_id 0
             dict set params_dict model_part_name [write::getMeshId Parts [get_domnode_attribute [$data_basenode selectNodes "./value\[@n='Construction_part'\]"] v]]
+            set params [list Gravity_Direction Reservoir_Bottom_Coordinate_in_Gravity_Direction Height_Dam Number_of_phases]
+            foreach param $params {
+                dict set params_dict $param [write::getValueByNode [$data_basenode selectNodes "./value\[@n='$param'\]"]]
+            }
         dict set construction_dict Parameters $params_dict
     }
     return $construction_dict
