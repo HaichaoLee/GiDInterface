@@ -26,7 +26,7 @@ proc ::Fluid::Init { } {
     dict set attributes UseIntervals 1
 
     LoadMyFiles
-    if {"LoadTree" ni [apps::getAppArguments]} {::Fluid::FluidAppSelectorWindow} 
+    if {"LoadTree" ni [apps::getAppArguments]} {::Fluid::FluidAppSelectorWindow}
 }
 
 proc ::Fluid::LoadMyFiles { } {
@@ -46,7 +46,7 @@ proc ::Fluid::GetAttribute {name} {
 
 proc ::Fluid::FluidAppSelectorWindow { } {
     set initwind $::spdAux::initwind
-    
+
     set root [customlib::GetBaseRoot]
     set nd [ [$root selectNodes "value\[@n='nDim'\]"] getAttribute v]
     if { $nd ne "undefined" } {
@@ -117,7 +117,7 @@ proc ::Fluid::ChangeAppTo {appid} {
 proc ::Fluid::CustomToolbarItems { } {
     variable dir
     uplevel #0 [list source [file join $dir examples examples.tcl]]
-    Kratos::ToolbarAddItem "Example" "example.png" [list -np- ::Fluid::examples::CylinderInFlow] [= "Example\nCylinder in air flow"]   
+    Kratos::ToolbarAddItem "Example" "example.png" [list -np- ::Fluid::examples::CylinderInFlow] [= "Example\nCylinder in air flow"]
 
     if {"WindTunnelToolBar" in [apps::getAppArguments]} {
         Kratos::ToolbarAddItem "SpacerWindTunnel" "" "" ""
@@ -127,9 +127,9 @@ proc ::Fluid::CustomToolbarItems { } {
 proc ::Fluid::WindTunnelToolBar { } {
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml ImportWindowController.tcl]]
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml BoundingBoxWindowController.tcl]]
-    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- Fluid::xml::ImportMeshWindow] [= "Import embedded mesh"]
-    Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Move the geometry/mesh"]
-    Kratos::ToolbarAddItem "Box" "box.png" [list -np- Fluid::xml::BoundingBox::CreateWindow] [= "Generate the bounding box"]
+    Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- Fluid::xml::ImportMeshWindow] [= "Import immersed object"]
+    Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Immersed object geometrical operations"]
+    Kratos::ToolbarAddItem "Box" "box.png" [list -np- Fluid::xml::BoundingBox::CreateWindow] [= "Bounding box generator"]
 }
 
 
