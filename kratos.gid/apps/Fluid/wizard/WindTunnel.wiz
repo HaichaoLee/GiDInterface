@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Wizard version="1.0.1" wizardid="WindTunnelWizard" AppId="Fluid">
+  <Steps>
+    <Step id="Fluid">
+      <Data>
+        <Item n="State" v="0"/>
+        <Item n="Active" v="1"/>
+        <Item n="Visited" v="1"/>
+      </Data>
+    </Step>
+    <Step id="Conditions">
+      <Data>
+        <Item n="State" v="0"/>
+        <Item n="Active" v="0"/>
+        <Item n="Visited" v="0"/>
+      </Data>
+    </Step>
+    <Step id="Simulation">
+      <Data>
+        <Item n="State" v="0"/>
+        <Item n="Active" v="0"/>
+        <Item n="Visited" v="0"/>
+      </Data>
+    </Step>
+  </Steps>
+  <Templates>
+  </Templates>
+</Wizard>
