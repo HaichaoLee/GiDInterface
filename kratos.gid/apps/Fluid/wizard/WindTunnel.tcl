@@ -2,18 +2,23 @@
 namespace eval WindTunnelWizard::Wizard {
     # Namespace variables declaration
     variable entrywidth
-    set entrywidth 16
     variable borderwidth
-    set borderwidth 10
 }
 
 proc WindTunnelWizard::Wizard::Init { } {
-#W "Carga los pasos"
+    variable entrywidth
+    set entrywidth 16
+    variable borderwidth
+    set borderwidth 10
+    
 }
 
 proc WindTunnelWizard::Wizard::Fluid { win } {
     variable entrywidth
     variable borderwidth
+    set gid_height [winfo screenheight .gid]
+    set gid_width [winfo screenwidth .gid]
+    Wizard::SetWindowSize [expr int($gid_width *0.5)] [expr int($gid_height *0.5)]
     # Left frame
     set fr1 [ttk::frame $win.fr1 -borderwidth $borderwidth]
 
@@ -21,6 +26,7 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     set fr2 [ttk::frame $win.fr2 -borderwidth $borderwidth]
 
     set img1  [apps::getImgFrom Fluid "tunnel.png"]
+    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(350)] [ expr int(250)]]]
     set labIm [ttk::label $fr2.lIm -image $img1]
     
     # Fluid frame
@@ -28,7 +34,6 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     set props [GetFluidProperties]
 
     set i 0
-    set props 
     foreach prop $props {
         set pn $::Wizard::wprops(Material,$prop,name)
         set unit $::Wizard::wprops(Material,$prop,unit)
@@ -69,7 +74,6 @@ proc WindTunnelWizard::Wizard::NextFluid { } {
     set gnode [spdAux::AddConditionGroupOnXPath [spdAux::getRoute FLParts] "FluidBox"]
     [$gnode selectNodes "./value\[@n = 'DENSITY'\]"] setAttribute v $::Wizard::wprops(Material,DENSITY,value)
     [$gnode selectNodes "./value\[@n = 'VISCOSITY'\]"] setAttribute v $::Wizard::wprops(Material,VISCOSITY,value)
-
 }
 proc WindTunnelWizard::Wizard::GetFluidProperties { } {
     set props [list DENSITY VISCOSITY]
@@ -86,7 +90,41 @@ proc WindTunnelWizard::Wizard::GetFluidProperties { } {
 }
 
 proc WindTunnelWizard::Wizard::Conditions { win } {
-     
+    variable entrywidth
+    variable borderwidth
+    # Left frame
+    set fr1 [ttk::frame $win.fr1 -borderwidth $borderwidth]
+
+    # Rigth frame
+    set fr2 [ttk::frame $win.fr2 -borderwidth $borderwidth]
+
+    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(350)] [ expr int(250)]]]
+    set labIm [ttk::label $fr2.lIm -image $img1]
+    
+    # Fluid frame
+    set labfr1 [ttk::labelframe $fr1.lfr1 -text [= "Boundary conditions"] -padding 10 ]
+    
+    # labelframe para el inlet
+        # Tabla para intervalos con init, end, check(val/func), val/func
+    # labelframe para el outlet
+        # De las caras libres, pressure value
+    # labelframe para el slip
+        # De las caras libres
+    # labelframe para el noslit
+        # De las caras libres
+    # labelframe para el immersedbody solo fluid
+        #slip/noslip
+
+    grid $fr1 -column 1 -row 0 -sticky nw
+    grid $fr2 -column 2 -row 0 -sticky ne
+
+    
+     grid $labIm -column 0 -row 0 -sticky ne -rowspan 3
+    
+     # Label frames
+     grid $labfr1 -column 1 -row 0 -sticky wen -ipadx 2  -columnspan 2
+
+    
 }
 proc WindTunnelWizard::Wizard::NextConditions { } {
 
