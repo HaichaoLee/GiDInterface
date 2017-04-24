@@ -25,7 +25,11 @@ proc ::Fluid::Init { } {
 
     dict set attributes UseIntervals 1
 
-    LoadMyFiles
+    LoadMyFiles    
+
+    # Enable the Wizard Module
+    Kratos::LoadWizardFiles
+
     if {"LoadTree" ni [apps::getAppArguments]} {::Fluid::FluidAppSelectorWindow}
 }
 
@@ -124,12 +128,20 @@ proc ::Fluid::CustomToolbarItems { } {
         WindTunnelToolBar
     }
 }
+
 proc ::Fluid::WindTunnelToolBar { } {
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml ImportWindowController.tcl]]
     uplevel #0 [list source [file join [apps::getMyDir "Fluid"] xml BoundingBoxWindowController.tcl]]
     Kratos::ToolbarAddItem "ImportMesh" "Import.png" [list -np- Fluid::xml::ImportMeshWindow] [= "Import immersed object"]
     Kratos::ToolbarAddItem "Move" "move.png" [list -np- CopyMove Move] [= "Immersed object geometrical operations"]
     Kratos::ToolbarAddItem "Box" "box.png" [list -np- Fluid::xml::BoundingBox::CreateWindow] [= "Bounding box generator"]
+    Kratos::ToolbarAddItem "Wizard" "wizard32.png" [list -np- Fluid::xml::StartWindTunnelWizardWindow] [= "Launch wizard"]
+}
+
+proc ::Fluid::StartWindTunnelWizardWindow { } {
+    # gid_groups_conds::close_all_windows
+    Wizard::CreateWindow
+    
 }
 
 
