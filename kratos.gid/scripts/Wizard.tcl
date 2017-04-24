@@ -91,6 +91,7 @@ proc Wizard::CreateWindow {} {
     ::gid_wizard::wizard $wizwindow.w -steps $nssteplist
          
     # Start the wizard
+    $wizwindow.w buttonstate cancel hidden
     $wizwindow.w start
     
     bind $wizwindow <<WizNext>> [list Wizard::NextEvent %d]
