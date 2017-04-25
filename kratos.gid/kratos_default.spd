@@ -10,12 +10,14 @@
   <appLink n="Structural"		public="1" pn="Structural" active="0" appid="Structural" prefix="ST"/>
   <appLink n="Solid" 			public="1" pn="Solid" active="0" appid="Solid" prefix="SL"/>
   <appLink n="Fluid" 			public="1" pn="Fluid" active="0" appid="Fluid" prefix="FL"/>
-  <appLink n="EmbeddedFluid" 	public="0" pn="Embedded fluid" active="0" appid="EmbeddedFluid" prefix="FL"/>
+  <appLink n="EmbeddedFluid" 	public="0" pn="Embedded fluid" active="0" appid="EmbeddedFluid" prefix="EMBFL"/>
+  <appLink n="PotentialFluid" 	public="0" pn="Potential fluid" active="0" appid="PotentialFluid" prefix="PTFL"/>
   <appLink n="FSI" 				public="1" pn="FSI" active="0" appid="FSI" prefix="FSI"/>
   <appLink n="Pfem" 			public="1" pn="Pfem" active="0" appid="Pfem" prefix="PFEM_"/>
   <appLink n="StenosisWizard" 	public="1" pn="Stenosis Wizard" active="0" appid="StenosisWizard" prefix="StenosisWizard"/>
   <appLink n="Dam" 				public="1" pn="Dam" active="0" appid="Dam" prefix="Dam"/>
-  <appLink n="Composites" 			public="1" pn="Composites" active="0" appid="Composites" prefix="CS"/>
+	<appLink n="Numa" 			public="1" pn="Numa" active="0" appid="Numa" prefix="Numa"/>
+
   
   <blockdata n="units" pn="Units" icon="units" open_window="0">
     <value n='units_mesh' pn='Mesh units' unit_mesh_definition="1"/>
@@ -117,6 +119,11 @@
 		return [spdAux::ProcPartParamValue $domNode $args]
 	  ]]>
 	</proc>
+	<proc n='GetParts' args='args'>
+	  <![CDATA[
+		return [spdAux::ProcGetParts $domNode $args]
+	  ]]>
+	</proc>
 	  <proc n='PartParamState' args='args'>
 	  <![CDATA[
 		return [spdAux::ProcPartParamState $domNode $args]
@@ -158,6 +165,11 @@
 		return [spdAux::ProcConditionState $domNode $args]
 	  ]]>
 	</proc>
+	<proc n='ConditionParameterState' args='args'>
+	  <![CDATA[
+		return [spdAux::ProcConditionParameterState $domNode $args]
+	  ]]>
+	</proc>
 	
 	  <proc n='SolStratParamState' args='args'>
 	  <![CDATA[
@@ -195,6 +207,12 @@
 	  <![CDATA[
 		catch {[get_domnode_attribute $domNode dict]}
 		return [spdAux::ProcDisableIfUniqueName $domNode $args]
+	  ]]>
+	</proc>
+		  <proc n='HideIfUniqueName' args='args'>
+	  <![CDATA[
+		catch {[get_domnode_attribute $domNode dict]}
+		return [spdAux::ProcHideIfUniqueName $domNode $args]
 	  ]]>
 	</proc>
 		<proc n='CheckGeometry' args='args'>

@@ -1,7 +1,7 @@
 
 proc ::FSI::examples::MokChannelFlexibleWall {args} {
     DrawMokChannelFlexibleWallGeometry
-    AssignMokChannelFlexibleWallMeshSizes
+    AssignMokChannelFlexibleWallMeshSizes$::Model::SpatialDimension
     TreeAssignationMokChannelFlexibleWall
 }
 
@@ -132,7 +132,7 @@ proc FSI::examples::DrawMokChannelFlexibleWallGeometry {args} {
     GidUtils::UpdateWindow GROUPS
 }
 
-proc FSI::examples::AssignMokChannelFlexibleWallMeshSizes {args} {
+proc FSI::examples::AssignMokChannelFlexibleWallMeshSizes2D {args} {
     set long_side_divisions 100
     set short_side_divisions 4
     set outlet_element_size 0.01
@@ -145,8 +145,28 @@ proc FSI::examples::AssignMokChannelFlexibleWallMeshSizes {args} {
     GiD_Process Mescape Meshing Structured Lines $long_side_divisions {*}[GiD_EntitiesGroups get FluidLongSides lines] escape $short_side_divisions [GiD_EntitiesGroups get FluidShortSides lines] escape escape
     GiD_Process Mescape Meshing AssignSizes Lines $outlet_element_size {*}[GiD_EntitiesGroups get Outlet lines] escape escape
     GiD_Process Mescape Meshing AssignSizes Lines $noslip_element_size {*}[GiD_EntitiesGroups get NoSlip lines] escape escape
-    GiD_Process Mescape Meshing AssignSizes Surfaces $fluid_element_size [GiD_EntitiesGroups get Fluid surfaces] escape escape
-    GiD_Process Mescape Meshing ElemType Triangle [GiD_EntitiesGroups get Fluid surfaces] escape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $fluid_element_size {*}[GiD_EntitiesGroups get Fluid surfaces] escape escape
+    GiD_Process Mescape Meshing ElemType Triangle [GiD_EntitiesGroups get Fluid surfaces] escape escape
+}
+
+proc FSI::examples::AssignMokChannelFlexibleWallMeshSizes3D {args} {
+    set long_side_divisions 100
+    set short_side_divisions 4
+    set outlet_element_size 0.01
+    set noslip_element_size 0.01
+    set slip_element_size 0.01
+    set fluid_element_size 0.02
+
+    GiD_Process Mescape Utilities Variables SizeTransitionsFactor 0.4 escape escape
+    GiD_Process Mescape Meshing ElemType Tetrahedra [GiD_EntitiesGroups get Fluid volumes] escape
+    GiD_Process Mescape Meshing ElemType Hexahedra [GiD_EntitiesGroups get Structure volumes] escape
+    GiD_Process Mescape Meshing Structured Surfaces 14 16 escape $long_side_divisions 12 14 escape $long_side_divisions 45 46 escape escape
+    GiD_Process Mescape Meshing Structured Surfaces 15 escape $short_side_divisions 13 escape $long_side_divisions 45 46 escape escape
+    GiD_Process Mescape Meshing Structured Volumes [GiD_EntitiesGroups get Structure volumes] escape $short_side_divisions 48 escape $long_side_divisions 15 17 52 53 escape escape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $outlet_element_size {*}[GiD_EntitiesGroups get Outlet surfaces] escape escape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $noslip_element_size {*}[GiD_EntitiesGroups get NoSlip surfaces] escape escape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $slip_element_size {*}[GiD_EntitiesGroups get Slip surfaces] escape escape
+    GiD_Process Mescape Meshing AssignSizes Volumes $fluid_element_size [GiD_EntitiesGroups get Fluid volumes] escape escape
 }
 
 proc FSI::examples::TreeAssignationMokChannelFlexibleWall {args} {
@@ -159,7 +179,7 @@ proc FSI::examples::TreeAssignationMokChannelFlexibleWall {args} {
     # Fluid Parts
     set fluidParts {container[@n='FSI']/container[@n='Fluid']/condition[@n='Parts']}
     set fluidNode [spdAux::AddConditionGroupOnXPath $fluidParts Fluid]
-    set props [list Element FractionalStep$nd ConstitutiveLaw Newtonian DENSITY 956.0 VISCOSITY 0.145 YIELD_STRESS 0 POWER_LAW_K 1 POWER_LAW_N 1]
+    set props [list Element Monolithic$nd ConstitutiveLaw Newtonian DENSITY 956.0 VISCOSITY 1.51670E-04 YIELD_STRESS 0 POWER_LAW_K 1 POWER_LAW_N 1]
     foreach {prop val} $props {
         set propnode [$fluidNode selectNodes "./value\[@n = '$prop'\]"]
         if {$propnode ne "" } {
@@ -269,9 +289,20 @@ proc FSI::examples::TreeAssignationMokChannelFlexibleWall {args} {
         }
     }
 
-    # Fluid domain mesh parameters
+    # Fluid monolithic strategy setting
+    spdAux::SetValueOnTreeItem v "Monolithic" FLSolStrat
 
-
+    # Fluid domain strategy settings
+    set str_change_list [list relative_velocity_tolerance "1e-7" absolute_velocity_tolerance "1e-9" relative_pressure_tolerance "1e-7" absolute_pressure_tolerance "1e-9" maximum_iterations "20"]
+    set xpath [spdAux::getRoute FLStratParams]
+    foreach {name value} $str_change_list {
+        set node [$root selectNodes "$xpath/value\[@n = '$name'\]"]
+        if {$node ne ""} {
+            $node setAttribute v $value
+        } else {
+            W "Couldn't find $name - Check MOK script"
+        }
+    }
 
     # Structural
     gid_groups_conds::setAttributesF {container[@n='FSI']/container[@n='Structural']/container[@n='StageInfo']/value[@n='SolutionType']} {v Dynamic}
@@ -280,8 +311,8 @@ proc FSI::examples::TreeAssignationMokChannelFlexibleWall {args} {
     set structParts {container[@n='FSI']/container[@n='Structural']/condition[@n='Parts']}
     set structPartsNode [spdAux::AddConditionGroupOnXPath $structParts Structure]
     $structPartsNode setAttribute ov [expr {$nd == "3D" ? "volume" : "surface"}]
-    set constLawNameStruc [expr {$nd == "3D" ? "LinearElastic3DLaw" : "LinearElasticPlaneStrain2DLaw"}]
-    set props [list Element SmallDisplacementElement$nd ConstitutiveLaw $constLawNameStruc SECTION_TYPE 0 THICKNESS 1.0 DENSITY 1500.0 VISCOSITY 1e-6]
+    set constLawNameStruc [expr {$nd == "3D" ? "LinearElastic3DLaw" : "LinearElasticPlaneStress2DLaw"}]
+    set props [list Element TotalLagrangianElement$nd ConstitutiveLaw $constLawNameStruc SECTION_TYPE 0 THICKNESS 1.0 DENSITY 1500.0 VISCOSITY 1e-6]
     lappend props YIELD_STRESS 0 YOUNG_MODULUS 2.3e6 POISSON_RATIO 0.45 KINEMATIC_HARDENING_MODULUS 0 REFERENCE_HARDENING_MODULUS 0 INFINITY_HARDENING_MODULUS 0
     lappend props HARDENING_EXPONENT 0 DAMAGE_THRESHOLD 0 STRENGTH_RATIO 0 FRACTURE_ENERGY 0
     foreach {prop val} $props {
@@ -334,10 +365,29 @@ proc FSI::examples::TreeAssignationMokChannelFlexibleWall {args} {
         }
     }
 
-    # Structure domain mesh parameters
+    # Structure Bossak scheme setting
+    spdAux::SetValueOnTreeItem v "Bossak" STScheme
+
+    # Structure domain strategy settings
+    set str_change_list [list residual_relative_tolerance "1e-7" residual_absolute_tolerance "1e-9" max_iteration "20"]
+    set xpath [spdAux::getRoute SLStratParams]
+    foreach {name value} $str_change_list {
+        set node [$root selectNodes "$xpath/value\[@n = '$name'\]"]
+        if {$node ne ""} {
+            $node setAttribute v $value
+        } else {
+            W "Couldn't find $name - Check MOK script"
+        }
+    }
 
     # Coupling settings
-    set change_list [list nl_tol "1e-6" nl_max_it 25]
+    set parallelization_parameters [list ParallelSolutionType OpenMP OpenMPNumberOfThreads 4]
+    set parallelization_params_path [spdAux::getRoute "Parallelization"]
+    foreach {n v} $parallelization_parameters {
+        [$root selectNodes "$parallelization_params_path/value\[@n = '$n'\]"] setAttribute v $v
+    }
+
+    set change_list [list nl_tol "1e-7" nl_max_it 25]
     set xpath [spdAux::getRoute FSIStratParams]
     foreach {name value} $change_list {
         set node [$root selectNodes "$xpath/value\[@n = '$name'\]"]

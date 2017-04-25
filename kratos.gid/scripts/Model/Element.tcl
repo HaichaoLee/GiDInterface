@@ -28,7 +28,7 @@ oo::class create Element {
         variable constLawFilters;
         
         set v ""
-        catch {
+        if {[dict exists $constLawFilters $key]} {
             set v [dict get $constLawFilters $key]
         }
         return $v
@@ -62,13 +62,12 @@ oo::class create Element {
     method getNodalCondition {key} {
         variable ElementNodalCondition
         set v ""
-        catch {
-            foreach nc [::Model::getAllNodalConditions] {
+        foreach nc [::Model::getAllNodalConditions] {
             if {[$nc getName] in $ElementNodalCondition} {
                 return $nc
             }
         }
-        }
+        
         return $v
     }
     
@@ -118,6 +117,21 @@ oo::class create NodalCondition {
 }
 }
 
+proc Model::ForgetElements { } {
+    variable Elements
+    set Elements [list ]
+}
+proc Model::ForgetElement { elem_id } {
+    variable Elements
+    set Elements2 [list ]
+    foreach elem $Elements {
+        if {[$elem getName] ne $elem_id} {
+            lappend Elements2 $elem
+        }
+    }
+    set Elements $Elements2
+}
+
 proc Model::ParseElements { doc } {
     variable Elements
     
@@ -135,40 +149,67 @@ proc Model::ParseNodalConditions { doc } {
     }
 }
 
+proc Model::ForgetNodalConditions { } {
+    variable NodalConditions
+    set NodalConditions [list ]
+}
+proc Model::ForgetNodalCondition { cnd_id } {
+    variable NodalConditions
+    set NodalConditions2 [list ]
+    foreach cnd $NodalConditions {
+        if {[$cnd getName] ne $cnd_id} {
+            lappend NodalConditions2 $cnd
+        }
+    }
+    set NodalConditions $NodalConditions2
+}
 
 proc Model::ParseElemNode { node } {
     set name [$node getAttribute n]
     
     set el [::Model::Element new $name]
     $el setPublicName [$node getAttribute pn]
-    catch {$el setDv [$node getAttribute v]}
+    if {[$node hasAttribute v]} {$el setDv [$node getAttribute v]}
     
     foreach att [$node attributes] {
         $el setAttribute $att [split [$node getAttribute $att] ","]
         #W "$att : [$el getAttribute $att]"
     }
-    
-    foreach top [[$node getElementsByTagName TopologyFeatures] childNodes]  {
-        set el [ParseTopologyNode $el $top]
+    set top_node [$node getElementsByTagName TopologyFeatures]
+    if {$top_node ne "" && [$top_node hasChildNodes]} {
+        foreach top [$top_node childNodes]  {
+            set el [ParseTopologyNode $el $top]
+        }
     }
-    foreach in [[$node getElementsByTagName inputs] childNodes]  {
-        set el [ParseInputParamNode $el $in]
+    set inputs_node [$node getElementsByTagName inputs]
+    if {$inputs_node ne "" && [$inputs_node hasChildNodes]} {
+        foreach in [$inputs_node childNodes]  {
+            set el [ParseInputParamNode $el $in]
+        }
     }
-    foreach out [[$node getElementsByTagName outputs] childNodes] {
-        set n [$out @n]
-        set pn [$out @pn]
-        set v false
-        catch {set v [$out @v]}
-        set outobj [::Model::Parameter new $n $pn bool $v "" "" "" ]
-        $el addOutputDone $outobj
+    set outputs_node [$node getElementsByTagName outputs]
+    if {$outputs_node ne "" && [$outputs_node hasChildNodes]} {
+        foreach out [$outputs_node childNodes] {
+            set n [$out @n]
+            set pn [$out @pn]
+            set v false
+            if {[$out hasAttribute v]} {set v [$out @v]}
+            set outobj [::Model::Parameter new $n $pn bool $v "" "" "" ]
+            $el addOutputDone $outobj
+        }
     }
-    foreach clf [[$node getElementsByTagName ConstitutiveLaw_FilterFeatures] childNodes]  {
-        $el addConstLawFilter [$clf getAttribute field] [$clf getAttribute value]
-        #W "CL Filter [$clf nodeName] -> [$el getConstLawFilterValue [$clf nodeName]]"
+    set const_laws_node [$node getElementsByTagName ConstitutiveLaw_FilterFeatures]
+    if {$const_laws_node ne "" && [$const_laws_node hasChildNodes]} {
+        foreach clf [$const_laws_node childNodes]  {
+            $el addConstLawFilter [$clf getAttribute field] [$clf getAttribute value]
+        }
     }
-    foreach ncnode [[$node getElementsByTagName NodalConditions] childNodes]  {
-        set n [$ncnode @n]
-        $el addNodalCondition $n
+    set nodal_conds_node [$node getElementsByTagName NodalConditions]
+    if {$nodal_conds_node ne "" && [$nodal_conds_node hasChildNodes]} {
+        foreach ncnode [$nodal_conds_node childNodes]  {
+            set n [$ncnode @n]
+            $el addNodalCondition $n
+        }
     }
     
     return $el
@@ -179,7 +220,7 @@ proc Model::ParseNodalConditionsNode { node } {
     set el [::Model::NodalCondition new $name]
     $el setPublicName [$node getAttribute pn]
     
-    catch {
+    if {[$node hasAttribute ov]} {
         set ov [$node getAttribute ov]
         $el setOv $ov
     }
@@ -202,14 +243,15 @@ proc Model::ParseNodalConditionsNode { node } {
             set n [$out @n]
             set pn [$out @pn]
             set v false
-            catch {set v [$out @v]}
+            if {[$out hasAttribute v]} {set v [$out @v]}
             set outobj [::Model::Parameter new $n $pn bool $v "" "" "" ]
             $el addOutputDone $outobj
         }
     }
     $el setProcessName [$node getAttribute ProcessName]
-    catch {
-        foreach def [[$node getElementsByTagName DefaultValues] getElementsByTagName value]  {
+    set defaultValuesList [$node getElementsByTagName DefaultValues]
+    if {[llength $defaultValuesList]} {
+        foreach def [$defaultValuesList getElementsByTagName value]  {
             set itemName [$def @n]
             foreach att [$def attributes] {
                 if {$att ne "n"} {
@@ -356,15 +398,17 @@ proc Model::CheckElementsNodalCondition {conditionId elemnames {restrictions "" 
         #
     } else {
         foreach eid $elemnames {
-            set elem [getElement $eid]
-            foreach elemNCNode [$elem getNodalConditions] {
-                set elemNC [$elemNCNode getName]
-                if {$elemNC eq $conditionId} {
-                    set ret 1
-                    foreach {key value} $restrictions {
-                        # JG: Revisar bidireccionalidad
-                        set nc [getNodalConditionbyId $conditionId]
-                        if {$value ni [$nc getAttribute $key]} {set ret 0;break}
+            if {$eid ne ""} {
+                set elem [getElement $eid]
+                foreach elemNCNode [$elem getNodalConditions] {
+                    set elemNC [$elemNCNode getName]
+                    if {$elemNC eq $conditionId} {
+                        set ret 1
+                        foreach {key value} $restrictions {
+                            # JG: Revisar bidireccionalidad
+                            set nc [getNodalConditionbyId $conditionId]
+                            if {$value ni [$nc getAttribute $key]} {set ret 0;break}
+                        }
                     }
                 }
             }
