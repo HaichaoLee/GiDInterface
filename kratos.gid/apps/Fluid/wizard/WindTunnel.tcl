@@ -120,7 +120,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set ::Wizard::wprops(Conditions,inlet,value) [lindex $values 0]
         }
         set comboinlet [ttk::combobox $labinl.cbinlet -values $values -textvariable ::Wizard::wprops(Conditions,inlet,value) -width $entrywidth -state readonly]
-        bind $comboinlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+        # bind $comboinlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,inlet,combo) $comboinlet
         set inletButton [ttk::button $labinl.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions inlet] -style IconButton]
@@ -134,7 +134,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set ::Wizard::wprops(Conditions,outlet,value) [lindex $values 1]
         }
         set combooutlet [ttk::combobox $labout.cboutlet -values $values -textvariable ::Wizard::wprops(Conditions,outlet,value) -width $entrywidth -state readonly]
-        bind $combooutlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+        # bind $combooutlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,outlet,combo) $combooutlet
         set presslbl [ttk::label $labout.presslbl -text "Pressure:"]
         set ::Wizard::wprops(Conditions,pressure,value) 0.0
@@ -154,11 +154,11 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set checkslipframe [ttk::frame $labslip.checkslipframe]
         foreach value $values {
             set labelslip$value [ttk::label $checkslipframe.label$value -text $value]
-            set checkslip$value [ttk::checkbutton $checkslipframe.check$value]
+            set checkslip$value [ttk::checkbutton $checkslipframe.check$value -command [list WindTunnelWizard::Wizard::UpdateCheckBox slip $value]]
         }
         set slipButton [ttk::button $labslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions slip] -style IconButton]
-    # labelframe para el noslit
+    # labelframe para el noslip
         # De las caras libres
         set labnoslip [ttk::labelframe $labfr1.noslip -text [= "No slip"] -padding 10 ]
         set nosliplbl [ttk::label $labnoslip.sliplbl -text "No slip faces:"]
@@ -168,7 +168,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set checknoslipframe [ttk::frame $labnoslip.checkslipframe]
         foreach value $values {
             set labelnoslip$value [ttk::label $checknoslipframe.label$value -text $value]
-            set checknoslip$value [ttk::checkbutton $checknoslipframe.check$value]
+            set checknoslip$value [ttk::checkbutton $checknoslipframe.check$value -command [list WindTunnelWizard::Wizard::UpdateCheckBox noslip $value]]
         }
         set noslipButton [ttk::button $labnoslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions noslip] -style IconButton]
@@ -180,7 +180,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set ::Wizard::wprops(Conditions,body,value) Slip
         }
         set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
-        bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+        # bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,inlet,combo) $combobody
 
     # grid $fr1 -column 0 -row 0 -sticky n
@@ -246,8 +246,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $immlbl -column 1 -row 0 -sticky we -ipadx 2
         grid $combobody -column 2 -row 0 -sticky we -ipadx 2
 }
-proc WindTunnelWizard::Wizard::ChangeCondition { inl } {
-    
+proc WindTunnelWizard::Wizard::UpdateCheckBox { let sel } {
+    W "Not implemented $let $sel"
 }
 proc WindTunnelWizard::Wizard::DrawConditions { but } {
     variable curr_image
