@@ -3,6 +3,7 @@ namespace eval WindTunnelWizard::Wizard {
     # Namespace variables declaration
     variable entrywidth
     variable borderwidth
+    variable curr_image
 }
 
 proc WindTunnelWizard::Wizard::Init { } {
@@ -11,6 +12,8 @@ proc WindTunnelWizard::Wizard::Init { } {
     variable borderwidth
     set borderwidth 10
     
+    variable curr_image
+    set curr_image ""
 }
 
 proc WindTunnelWizard::Wizard::Fluid { win } {
@@ -20,17 +23,15 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     set gid_width [winfo screenwidth .gid]
     Wizard::SetWindowSize [expr int($gid_width *0.5)] [expr int($gid_height *0.7)]
     # Left frame
-    set fr1 [ttk::frame $win.fr1 -borderwidth $borderwidth]
+    set labfr1 [ttk::labelframe $win.lfr1 -text [= "Fluid properties"] -padding 10 ]
 
     # Rigth frame
-    set fr2 [ttk::frame $win.fr2 -borderwidth $borderwidth]
+    set fr2 [ttk::labelframe $win.fr2 -text [= "Preview"] -padding 10 ]
+    set labIm [ttk::label $fr2.lIm -image [GetImage]]
+    variable curr_image
+    set curr_image $labIm
 
-    set img1  [apps::getImgFrom Fluid "tunnel.png"]
-    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(350)] [ expr int(250)]]]
-    set labIm [ttk::label $fr2.lIm -image $img1]
-    
     # Fluid frame
-    set labfr1 [ttk::labelframe $fr1.lfr1 -text [= "Fluid properties"] -padding 10 ]
     set props [GetFluidProperties]
 
     set i 0
@@ -47,14 +48,14 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     }
     
 
-    grid $fr1 -column 1 -row 0 -sticky nw
+    # grid $fr1 -column 1 -row 0 -sticky nw
     grid $fr2 -column 2 -row 0 -sticky ne
 
     
      grid $labIm -column 0 -row 0 -sticky ne -rowspan 3
     
      # Label frames
-     grid $labfr1 -column 1 -row 0 -sticky wen -ipadx 2  -columnspan 2
+     grid $labfr1 -column 1 -row 0 -sticky wen -padx 2
 
      for {set j 0} {$j < $i} {incr j} {
         set lab "lab$j"
@@ -88,24 +89,29 @@ proc WindTunnelWizard::Wizard::GetFluidProperties { } {
     
     return $props
 }
-
+proc WindTunnelWizard::Wizard::GetImage {{w -1} {h -1}} {
+    if {$h eq -1} {set h [ expr int(450)]}
+    if {$w eq -1} {set w [ expr int(600)]}
+    set img1 [ image create photo -data [ GiD_Thumbnail get $w $h ]]
+    return $img1
+}
 proc WindTunnelWizard::Wizard::Conditions { win } {
     variable entrywidth
     variable borderwidth
     GiD_Process 'Rotate Angle -150 30
     # Left frame
-    set fr1 [ttk::frame $win.fr1 -borderwidth $borderwidth]
+    # set fr1 [ttk::frame $win.fr1 -padding 4  -borderwidth $borderwidth]
 
     # Rigth frame
-    set fr2 [ttk::frame $win.fr2 -borderwidth $borderwidth]
-
-    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(550)] [ expr int(450)]]]
-    set labIm [ttk::label $fr2.lIm -image $img1]
+    set fr2 [ttk::labelframe $win.fr2 -text [= "Preview"] -padding 4  -borderwidth $borderwidth]
+    set labIm [ttk::label $fr2.lIm -image [GetImage]]
+    variable curr_image
+    set curr_image $labIm
     
     # Fluid frame
-    set labfr1 [ttk::labelframe $fr1.lfr1 -text [= "Boundary conditions"] -padding 4 ]
+    set labfr1 [ttk::labelframe $win.lfr1 -text [= "Boundary conditions"] ]
     
-    set values [list Front Back Top Bottom Left Rigth]
+    set values [list Front Back Top Bottom Left Right]
     # labelframe para el inlet
         # De las caras libres, inlet value
         set labinl [ttk::labelframe $labfr1.inlet -text [= "Inlet"] -padding 10 ]
@@ -176,17 +182,15 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
         bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,inlet,combo) $combobody
-        set bodyButton [ttk::button $labimm.but -image [gid_themes::GetImage group_draw.png small_icons] \
-        -command [list WindTunnelWizard::Wizard::DrawConditions body] -style IconButton]
 
-    grid $fr1 -column 1 -row 0 -sticky nw
-    grid $fr2 -column 2 -row 0 -sticky ne
+    # grid $fr1 -column 0 -row 0 -sticky n
+    grid $fr2 -column 2 -row 0 -sticky n
 
     
      grid $labIm -column 0 -row 0 -sticky ne -rowspan 3
     
      # Label frames
-     grid $labfr1 -column 1 -row 0 -sticky we -ipadx 2
+     grid $labfr1 -column 1 -row 0 -sticky we -padx 5
         # Inlet
         grid $labinl -column 1 -row 0 -sticky we -ipadx 2
         grid $inllbl -column 1 -row 0 -sticky we -ipadx 2
@@ -241,13 +245,21 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $labimm -column 1 -row 4 -sticky we -ipadx 2
         grid $immlbl -column 1 -row 0 -sticky we -ipadx 2
         grid $combobody -column 2 -row 0 -sticky we -ipadx 2
-        grid $bodyButton -column 3 -row 0 -sticky w -ipadx 2
 }
 proc WindTunnelWizard::Wizard::ChangeCondition { inl } {
     
 }
 proc WindTunnelWizard::Wizard::DrawConditions { but } {
-
+    variable curr_image
+    catch {GiD_Groups end_draw}
+    set gNodes [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLImportedParts]/group"]
+    set groups [list ]
+    foreach node $gNodes {lappend groups [$node @n]}
+    GiD_Groups draw [concat $::Wizard::wprops(Conditions,${but},value) $groups]
+    GiD_Process 'Redraw
+    $curr_image configure -image [GetImage]
+    GiD_Groups end_draw
+    GiD_Process 'Redraw
 }
 proc WindTunnelWizard::Wizard::NextConditions { } {
 

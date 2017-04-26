@@ -152,6 +152,10 @@ proc Fluid::xml::BoundingBox::BuildBox { } {
     
     GiD_Layers create $boxname
     GiD_Layers edit to_use $boxname
+    # GiD_Layers edit opaque $boxname 0
+    # GiD_Layers edit visible $boxname 1
+    GiD_Process 'Layers Transparent $boxname 127 escape escape 
+
     
     Fluid::xml::BoundingBox::CreateBoxGeom
     if {![GiD_Groups exists $boxname]} {GiD_Groups create $boxname}
@@ -165,6 +169,7 @@ proc Fluid::xml::BoundingBox::BuildBox { } {
 
     GidUtils::EnableGraphics
     GiD_Process 'Zoom Frame
+    GiD_Process 'Render Flat
     GidUtils::UpdateWindow GROUPS
     GidUtils::UpdateWindow LAYER
 }

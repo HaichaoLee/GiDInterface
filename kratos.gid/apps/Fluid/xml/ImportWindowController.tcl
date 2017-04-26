@@ -33,7 +33,7 @@ proc Fluid::xml::ImportMeshWindow { } {
     GiD_EntitiesGroups assign $model_name lines [GiD_EntitiesLayers get $model_name lines]
     GiD_EntitiesGroups assign $model_name points [GiD_EntitiesLayers get $model_name points]
 
-    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize selection {*}[GiD_EntitiesLayers get $model_name surfaces] MEscape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize selection {*}[GiD_EntitiesLayers get $model_name surfaces] escape escape
 
 
     GidUtils::EnableGraphics
