@@ -99,7 +99,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
     # Rigth frame
     set fr2 [ttk::frame $win.fr2 -borderwidth $borderwidth]
 
-    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(450)] [ expr int(350)]]]
+    set img1 [ image create photo -data [ GiD_Thumbnail get [ expr int(550)] [ expr int(450)]]]
     set labIm [ttk::label $fr2.lIm -image $img1]
     
     # Fluid frame
@@ -116,6 +116,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set comboinlet [ttk::combobox $labinl.cbinlet -values $values -textvariable ::Wizard::wprops(Conditions,inlet,value) -width $entrywidth -state readonly]
         bind $comboinlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,inlet,combo) $comboinlet
+        set inletButton [ttk::button $labinl.but -image [gid_themes::GetImage group_draw.png small_icons] \
+        -command [list WindTunnelWizard::Wizard::DrawConditions inlet] -style IconButton]
         # Tabla para intervalos con init, end, check(val/func), val/func
 
     # labelframe para el outlet
@@ -133,7 +135,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set entpres [ttk::entry $labout.entpres -textvariable ::Wizard::wprops(Conditions,pressure,value) -width $entrywidth]
         set labunpres [ttk::label $labout.upres -text "Pa"]
         wcb::callback $labout.entpres before insert wcb::checkEntryForReal
-        
+        set outletButton [ttk::button $labout.but -image [gid_themes::GetImage group_draw.png small_icons] \
+        -command [list WindTunnelWizard::Wizard::DrawConditions outlet] -style IconButton]
 
     # labelframe para el slip
         # De las caras libres
@@ -147,6 +150,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set labelslip$value [ttk::label $checkslipframe.label$value -text $value]
             set checkslip$value [ttk::checkbutton $checkslipframe.check$value]
         }
+        set slipButton [ttk::button $labslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
+        -command [list WindTunnelWizard::Wizard::DrawConditions slip] -style IconButton]
     # labelframe para el noslit
         # De las caras libres
         set labnoslip [ttk::labelframe $labfr1.noslip -text [= "No slip"] -padding 10 ]
@@ -159,6 +164,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set labelnoslip$value [ttk::label $checknoslipframe.label$value -text $value]
             set checknoslip$value [ttk::checkbutton $checknoslipframe.check$value]
         }
+        set noslipButton [ttk::button $labnoslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
+        -command [list WindTunnelWizard::Wizard::DrawConditions noslip] -style IconButton]
     # labelframe para el immersedbody solo fluid
         #slip/noslip
         set labimm [ttk::labelframe $labfr1.immersed -text [= "Immersed body"] -padding 10 ]
@@ -169,10 +176,8 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
         bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,inlet,combo) $combobody
-    # boton draw
-        
-     set drawButton [ttk::button $labfr1.b2 -text "Draw" -command [list W "Arroz"]]
-     #$drawButton configure -bg #4CAF50
+        set bodyButton [ttk::button $labimm.but -image [gid_themes::GetImage group_draw.png small_icons] \
+        -command [list WindTunnelWizard::Wizard::DrawConditions body] -style IconButton]
 
     grid $fr1 -column 1 -row 0 -sticky nw
     grid $fr2 -column 2 -row 0 -sticky ne
@@ -186,16 +191,20 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $labinl -column 1 -row 0 -sticky we -ipadx 2
         grid $inllbl -column 1 -row 0 -sticky we -ipadx 2
         grid $comboinlet -column 2 -row 0 -sticky we -ipadx 2
+        grid $inletButton -column 3 -row 0 -sticky we -ipadx 2
+        
         # Outlet
         grid $labout -column 1 -row 1 -sticky we -ipadx 2
         grid $outlbl -column 1 -row 0 -sticky we -ipadx 2
-        grid $combooutlet -column 2 -row 0 -sticky we -ipadx 2 -columnspan 2
+        grid $combooutlet -column 2 -row 0 -sticky we -ipadx 2 
+        grid $outletButton -column 3 -row 0 -sticky we -ipadx 2
         grid $presslbl -column 1 -row 1 -sticky we -ipadx 2
         grid $entpres -column 2 -row 1 -sticky we -ipadx 2
         grid $labunpres -column 3 -row 1 -sticky we -ipadx 2
         # Slip
         grid $labslip -column 1 -row 2 -sticky we -ipadx 2
         grid $sliplbl -column 1 -row 0 -sticky we -ipadx 2
+        grid $slipButton -column 2 -row 0 -sticky w -ipadx 2
         grid $checkslipframe -column 1 -row 1 -sticky we -ipadx 2 -columnspan 2
         set c 0
         foreach {v1 v2} $values {
@@ -210,9 +219,10 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             grid [set $b2] -column $c -row 1 -sticky we
             incr c
         }
-        # Slip
+        # No slip
         grid $labnoslip -column 1 -row 3 -sticky we -ipadx 2
         grid $nosliplbl -column 1 -row 0 -sticky we -ipadx 2
+        grid $noslipButton -column 2 -row 0 -sticky w -ipadx 2
         grid $checknoslipframe -column 1 -row 1 -sticky we -ipadx 2 -columnspan 2
         set c 0
         foreach {v1 v2} $values {
@@ -231,13 +241,13 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $labimm -column 1 -row 4 -sticky we -ipadx 2
         grid $immlbl -column 1 -row 0 -sticky we -ipadx 2
         grid $combobody -column 2 -row 0 -sticky we -ipadx 2
-
-        # Draw button
-        grid $drawButton -column 1 -row 5 -sticky ew
-    
+        grid $bodyButton -column 3 -row 0 -sticky w -ipadx 2
 }
 proc WindTunnelWizard::Wizard::ChangeCondition { inl } {
     
+}
+proc WindTunnelWizard::Wizard::DrawConditions { but } {
+
 }
 proc WindTunnelWizard::Wizard::NextConditions { } {
 
