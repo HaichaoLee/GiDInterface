@@ -21,7 +21,7 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     variable borderwidth
     set gid_height [winfo screenheight .gid]
     set gid_width [winfo screenwidth .gid]
-    Wizard::SetWindowSize [expr int($gid_width *0.5)] [expr int($gid_height *0.7)]
+    Wizard::SetWindowSize [expr int($gid_width *0.5)] [expr int($gid_height *0.6)]
     # Left frame
     set labfr1 [ttk::labelframe $win.lfr1 -text [= "Fluid properties"] -padding 10 ]
 
@@ -136,11 +136,11 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set combooutlet [ttk::combobox $labout.cboutlet -values $values -textvariable ::Wizard::wprops(Conditions,outlet,value) -width $entrywidth -state readonly]
         # bind $combooutlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
         set ::Wizard::wprops(Conditions,outlet,combo) $combooutlet
-        set presslbl [ttk::label $labout.presslbl -text "Pressure:"]
-        set ::Wizard::wprops(Conditions,pressure,value) 0.0
-        set entpres [ttk::entry $labout.entpres -textvariable ::Wizard::wprops(Conditions,pressure,value) -width $entrywidth]
-        set labunpres [ttk::label $labout.upres -text "Pa"]
-        wcb::callback $labout.entpres before insert wcb::checkEntryForReal
+        # set presslbl [ttk::label $labout.presslbl -text "Pressure:"]
+        # set ::Wizard::wprops(Conditions,pressure,value) 0.0
+        # set entpres [ttk::entry $labout.entpres -textvariable ::Wizard::wprops(Conditions,pressure,value) -width $entrywidth]
+        # set labunpres [ttk::label $labout.upres -text "Pa"]
+        # wcb::callback $labout.entpres before insert wcb::checkEntryForReal
         set outletButton [ttk::button $labout.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions outlet] -style IconButton]
 
@@ -149,12 +149,13 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set labslip [ttk::labelframe $labfr1.slip -text [= "Slip"] -padding 10 ]
         set sliplbl [ttk::label $labslip.sliplbl -text "Slip faces:"]
         if {![info exists ::Wizard::wprops(Conditions,slip,values)] || $::Wizard::wprops(Conditions,slip,value) eq ""} {
-            set ::Wizard::wprops(Conditions,slip,value) [list [lindex $values 2] [lindex $values 3]]
+            set ::Wizard::wprops(Conditions,slip,value) [list ]
         }
+        foreach v $values {if {$v in $::Wizard::wprops(Conditions,slip,value)} {set ::Wizard::wprops(Conditions,slip,$v) 1} {set ::Wizard::wprops(Conditions,slip,$v) 0}}
         set checkslipframe [ttk::frame $labslip.checkslipframe]
         foreach value $values {
             set labelslip$value [ttk::label $checkslipframe.label$value -text $value]
-            set checkslip$value [ttk::checkbutton $checkslipframe.check$value -command [list WindTunnelWizard::Wizard::UpdateCheckBox slip $value]]
+            set checkslip$value [ttk::checkbutton $checkslipframe.check$value -variable ::Wizard::wprops(Conditions,slip,$value) -command [list WindTunnelWizard::Wizard::UpdateCheckBox slip $value]]
         }
         set slipButton [ttk::button $labslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions slip] -style IconButton]
@@ -163,12 +164,13 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set labnoslip [ttk::labelframe $labfr1.noslip -text [= "No slip"] -padding 10 ]
         set nosliplbl [ttk::label $labnoslip.sliplbl -text "No slip faces:"]
         if {![info exists ::Wizard::wprops(Conditions,noslip,values)] || $::Wizard::wprops(Conditions,noslip,value) eq ""} {
-            set ::Wizard::wprops(Conditions,noslip,value) [list [lindex $values 2] [lindex $values 3]]
+            set ::Wizard::wprops(Conditions,noslip,value) [list ]
         }
+        foreach v $values {if {$v in $::Wizard::wprops(Conditions,noslip,value)} {set ::Wizard::wprops(Conditions,noslip,$v) 1} {set ::Wizard::wprops(Conditions,noslip,$v) 0}}
         set checknoslipframe [ttk::frame $labnoslip.checkslipframe]
         foreach value $values {
             set labelnoslip$value [ttk::label $checknoslipframe.label$value -text $value]
-            set checknoslip$value [ttk::checkbutton $checknoslipframe.check$value -command [list WindTunnelWizard::Wizard::UpdateCheckBox noslip $value]]
+            set checknoslip$value [ttk::checkbutton $checknoslipframe.check$value -variable ::Wizard::wprops(Conditions,noslip,$value) -command [list WindTunnelWizard::Wizard::UpdateCheckBox noslip $value]]
         }
         set noslipButton [ttk::button $labnoslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions noslip] -style IconButton]
@@ -202,9 +204,9 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $outlbl -column 1 -row 0 -sticky we -ipadx 2
         grid $combooutlet -column 2 -row 0 -sticky we -ipadx 2 
         grid $outletButton -column 3 -row 0 -sticky we -ipadx 2
-        grid $presslbl -column 1 -row 1 -sticky we -ipadx 2
-        grid $entpres -column 2 -row 1 -sticky we -ipadx 2
-        grid $labunpres -column 3 -row 1 -sticky we -ipadx 2
+        # grid $presslbl -column 1 -row 1 -sticky we -ipadx 2
+        # grid $entpres -column 2 -row 1 -sticky we -ipadx 2
+        # grid $labunpres -column 3 -row 1 -sticky we -ipadx 2
         # Slip
         grid $labslip -column 1 -row 2 -sticky we -ipadx 2
         grid $sliplbl -column 1 -row 0 -sticky we -ipadx 2
@@ -247,7 +249,11 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $combobody -column 2 -row 0 -sticky we -ipadx 2
 }
 proc WindTunnelWizard::Wizard::UpdateCheckBox { let sel } {
-    W "Not implemented $let $sel"
+    if {$::Wizard::wprops(Conditions,$let,$sel)} {
+        lappend ::Wizard::wprops(Conditions,$let,value) $sel
+    } {
+        set ::Wizard::wprops(Conditions,$let,value) [lsearch -all -inline -not -exact $::Wizard::wprops(Conditions,$let,value) $sel]
+    }
 }
 proc WindTunnelWizard::Wizard::DrawConditions { but } {
     variable curr_image
