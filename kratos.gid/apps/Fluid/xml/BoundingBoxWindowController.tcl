@@ -161,14 +161,36 @@ proc Fluid::xml::BoundingBox::BuildBox { } {
     GiD_EntitiesGroups assign $boxname lines    [GiD_EntitiesLayers get $boxname lines]
     GiD_EntitiesGroups assign $boxname points   [GiD_EntitiesLayers get $boxname points]
     
+    CreateBoundaryGroups
+
     GidUtils::EnableGraphics
-    
-    
     GiD_Process 'Zoom Frame
     GidUtils::UpdateWindow GROUPS
     GidUtils::UpdateWindow LAYER
 }
 
+proc Fluid::xml::BoundingBox::CreateBoundaryGroups { } {
+    variable boxname
+    set groups [list Top Bottom Front Back Left Right]
+    foreach surf [GiD_EntitiesLayers get $boxname surfaces] {
+        lassign [GiD_Info parametric surface $surf coord 0.5 0.5] x y z
+        dict set surfs $surf [list $x $y $z]
+    }
+    foreach group $groups {
+        if {[GiD_Groups exists $group]} {GiD_Groups delete $group}
+        GiD_Groups create $group
+        GiD_Groups edit opaque $group 0
+    }
+    set X [lsort -stride 2 -real -index {1 0} $surfs]
+    GiD_EntitiesGroups assign Front surfaces [lindex $X 0]
+    GiD_EntitiesGroups assign Back surfaces [lindex $X end-1]
+    set Y [lsort -stride 2 -real -index {1 1} $surfs]
+    GiD_EntitiesGroups assign Right surfaces [lindex $Y 0]
+    GiD_EntitiesGroups assign Left surfaces [lindex $Y end-1]
+    set Z [lsort -stride 2 -real -index {1 2} $surfs]
+    GiD_EntitiesGroups assign Bottom surfaces [lindex $Z 0]
+    GiD_EntitiesGroups assign Top surfaces [lindex $Z end-1]
+}
 proc Fluid::xml::BoundingBox::CreateBoxGeom { } {
     variable boxname
     variable box
