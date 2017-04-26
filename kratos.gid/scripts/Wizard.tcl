@@ -82,8 +82,9 @@ proc Wizard::CreateWindow {} {
         incr i
         catch {$stepId destroy}
         lappend nssteplist ::Wizard::${stepId}
-        
-        ::gid_wizard::wizardstep $stepId -title [= "Step $i: $stepId"] -layout basic -body "::${wizardid}::Wizard::$stepId \$win"
+        set pid $wprops($stepId,__pn)
+        array unset wprops($stepId,__pn)
+        ::gid_wizard::wizardstep $stepId -title [= "Step $i: $pid"] -layout basic -body "::${wizardid}::Wizard::$stepId \$win"
     }
     
     # Render the wizard
@@ -129,6 +130,8 @@ proc Wizard::ImportWizardData {} {
     foreach stepNode $stepNodes dataNode $dataNodes {
         set i 0
         set stepId [$stepNode getAttribute id ""]
+        set wprops($stepId,__pn) $stepId
+        if {[$stepNode hasAttribute pid]} {set wprops($stepId,__pn) [$stepNode getAttribute pid]}
         lappend stepidlist $stepId
         foreach node [$dataNode childNodes] {
             # For nodes with no children
