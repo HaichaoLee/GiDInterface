@@ -15,6 +15,13 @@
         <Item n="Visited" v="0"/>
       </Data>
     </Step>
+    <Step id="ConditionValues" pid="Conditions values">
+      <Data>
+        <Item n="State" v="0"/>
+        <Item n="Active" v="0"/>
+        <Item n="Visited" v="0"/>
+      </Data>
+    </Step>
     <Step id="Simulation">
       <Data>
         <Item n="State" v="0"/>
