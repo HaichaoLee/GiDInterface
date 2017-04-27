@@ -149,7 +149,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         # De las caras libres
         set labslip [ttk::labelframe $labfr1.slip -text [= "Slip"] -padding 10 ]
         set sliplbl [ttk::label $labslip.sliplbl -text "Slip faces:"]
-        if {![info exists ::Wizard::wprops(Conditions,slip,values)] || $::Wizard::wprops(Conditions,slip,value) eq ""} {
+        if {![info exists ::Wizard::wprops(Conditions,slip,value)]} {
             set ::Wizard::wprops(Conditions,slip,value) [list ]
         }
         foreach v $values {if {$v in $::Wizard::wprops(Conditions,slip,value)} {set ::Wizard::wprops(Conditions,slip,$v) 1} {set ::Wizard::wprops(Conditions,slip,$v) 0}}
@@ -164,7 +164,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         # De las caras libres
         set labnoslip [ttk::labelframe $labfr1.noslip -text [= "No slip"] -padding 10 ]
         set nosliplbl [ttk::label $labnoslip.sliplbl -text "No slip faces:"]
-        if {![info exists ::Wizard::wprops(Conditions,noslip,values)] || $::Wizard::wprops(Conditions,noslip,value) eq ""} {
+        if {![info exists ::Wizard::wprops(Conditions,noslip,value)]} {
             set ::Wizard::wprops(Conditions,noslip,value) [list ]
         }
         foreach v $values {if {$v in $::Wizard::wprops(Conditions,noslip,value)} {set ::Wizard::wprops(Conditions,noslip,$v) 1} {set ::Wizard::wprops(Conditions,noslip,$v) 0}}
@@ -179,7 +179,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         #slip/noslip
         set labimm [ttk::labelframe $labfr1.immersed -text [= "Immersed body"] -padding 10 ]
         set immlbl [ttk::label $labimm.immlbl -text "Body skin:"]
-        if {![info exists ::Wizard::wprops(Conditions,body,value)] || $::Wizard::wprops(Conditions,body,value) eq ""} {
+        if {![array exists ::Wizard::wprops(Conditions,body,value)]} {
             set ::Wizard::wprops(Conditions,body,value) Slip
         }
         set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
