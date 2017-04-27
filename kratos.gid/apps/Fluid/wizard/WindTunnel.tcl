@@ -277,10 +277,15 @@ proc WindTunnelWizard::Wizard::NextConditions { } {
     spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::ConditionValues { win } {
-     
+     # Inlet tabla
+
+     # Outlet presion
 }
 proc WindTunnelWizard::Wizard::NextConditionValues { } {
+    # Crear los intervalos
+    # Pasar info a inlet
 
+    # Pasar info a outlet
 }
 proc WindTunnelWizard::Wizard::Simulation { win } {
      
