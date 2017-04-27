@@ -75,6 +75,7 @@ proc WindTunnelWizard::Wizard::NextFluid { } {
     set gnode [spdAux::AddConditionGroupOnXPath [spdAux::getRoute FLParts] "FluidBox"]
     [$gnode selectNodes "./value\[@n = 'DENSITY'\]"] setAttribute v $::Wizard::wprops(Material,DENSITY,value)
     [$gnode selectNodes "./value\[@n = 'VISCOSITY'\]"] setAttribute v $::Wizard::wprops(Material,VISCOSITY,value)
+    spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::GetFluidProperties { } {
     set props [list DENSITY VISCOSITY]
@@ -268,7 +269,12 @@ proc WindTunnelWizard::Wizard::DrawConditions { but } {
     GiD_Process 'Redraw
 }
 proc WindTunnelWizard::Wizard::NextConditions { } {
-
+    gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition/group"
+    spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $::Wizard::wprops(Conditions,inlet,value)
+    spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]" $::Wizard::wprops(Conditions,outlet,value)
+    foreach v $::Wizard::wprops(Conditions,slip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Slip3D'\]" $v}
+    foreach v $::Wizard::wprops(Conditions,noslip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='NoSlip3D'\]" $v}
+    spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::ConditionValues { win } {
      
