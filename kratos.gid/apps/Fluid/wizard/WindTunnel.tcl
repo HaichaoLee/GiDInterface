@@ -150,7 +150,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set labslip [ttk::labelframe $labfr1.slip -text [= "Slip"] -padding 10 ]
         set sliplbl [ttk::label $labslip.sliplbl -text "Slip faces:"]
         if {![info exists ::Wizard::wprops(Conditions,slip,value)]} {
-            set ::Wizard::wprops(Conditions,slip,value) [list ]
+            set ::Wizard::wprops(Conditions,slip,value) [list Left Right]
         }
         foreach v $values {if {$v in $::Wizard::wprops(Conditions,slip,value)} {set ::Wizard::wprops(Conditions,slip,$v) 1} {set ::Wizard::wprops(Conditions,slip,$v) 0}}
         set checkslipframe [ttk::frame $labslip.checkslipframe]
@@ -165,7 +165,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set labnoslip [ttk::labelframe $labfr1.noslip -text [= "No slip"] -padding 10 ]
         set nosliplbl [ttk::label $labnoslip.sliplbl -text "No slip faces:"]
         if {![info exists ::Wizard::wprops(Conditions,noslip,value)]} {
-            set ::Wizard::wprops(Conditions,noslip,value) [list ]
+            set ::Wizard::wprops(Conditions,noslip,value) [list Top Bottom]
         }
         foreach v $values {if {$v in $::Wizard::wprops(Conditions,noslip,value)} {set ::Wizard::wprops(Conditions,noslip,$v) 1} {set ::Wizard::wprops(Conditions,noslip,$v) 0}}
         set checknoslipframe [ttk::frame $labnoslip.checkslipframe]
@@ -277,9 +277,68 @@ proc WindTunnelWizard::Wizard::NextConditions { } {
     spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::ConditionValues { win } {
-     # Inlet tabla
+    variable entrywidth
+    variable borderwidth
+    GiD_Process 'Rotate Angle -150 30
+    
+    # Left frame
+    set labfr1 [ttk::labelframe $win.lfr1 -text [= "Boundary conditions"] ]
+    
+    # labelframe para el inlet
+        # De las caras libres, inlet value
+        set labinl [ttk::labelframe $labfr1.inlet -text [= "Inlet"] -padding 10 ]
+        set sw [ScrolledWindow $labinl.lf ]
+    
+    package require tablelist_tile
+    set list [tablelist::tablelist $sw.lb \
+            -exportselection 0 \
+            -columns [list \
+                9 [_ "Init time"] left \
+                9 [_ "End time"] left \
+                3 [_ "v/f"] left \
+                8 [_ "Value"] left \
+                8 [_ "Function"] center \
+                ] \
+            -stretch end -selectmode extended]
+    $sw setwidget $list
+    set botones [ttk::frame $labinl.buts]
+    set bAdd [ttk::button $botones.b1 -text [_ "Add interval"]      -command [list WindTunnelWizard::Wizard::AddIntervalRow $list]]
+    set bDel [ttk::button $botones.b2 -text [_ "Remove interval"]   -command [list WindTunnelWizard::Wizard::DelIntervalRow $list]]
+    # labelframe para el outlet
+        # De las caras libres, pressure value
+        set labout [ttk::labelframe $labfr1.outlet -text [= "Outlet"] -padding 10 ]
+        set presslbl [ttk::label $labout.presslbl -text "Pressure:"]
+        set ::Wizard::wprops(ConditionValues,pressure,value) 0.0
+        set entpres [ttk::entry $labout.entpres -textvariable ::Wizard::wprops(ConditionValues,pressure,value) -width $entrywidth]
+        set labunpres [ttk::label $labout.upres -text "Pa"]
+        wcb::callback $labout.entpres before insert wcb::checkEntryForReal
+    
+     # Label frames
+     grid $labfr1 -padx 5 -sticky ewns
+     grid columnconfigure $win 0 -weight 1
+     grid rowconfigure $win 0 -weight 1
+        # Inlet
+        grid $labinl -sticky wens -ipadx 2
+        grid columnconfigure $labfr1 0 -weight 1
+        grid rowconfigure $labfr1 0 -weight 1
+        grid $sw -sticky nsew
+        grid $botones -sticky nsew
+        grid $bAdd $bDel
+        grid columnconfigure $labinl 0 -weight 1
+        grid rowconfigure $labinl 0 -weight 1
+        # Outlet
+        grid $labout -row 1 -sticky we -ipadx 2
+        grid $presslbl -column 1 -row 0 -sticky we -ipadx 2
+        grid $entpres -column 2 -row 0 -sticky we -ipadx 2
+        grid $labunpres -column 3 -row 0 -sticky we -ipadx 2
+        
+}
 
-     # Outlet presion
+proc WindTunnelWizard::Wizard::AddIntervalRow {table} {
+    # $table 
+}
+proc WindTunnelWizard::Wizard::DelIntervalRow {table} {
+    
 }
 proc WindTunnelWizard::Wizard::NextConditionValues { } {
     # Crear los intervalos
@@ -288,7 +347,53 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
     # Pasar info a outlet
 }
 proc WindTunnelWizard::Wizard::Simulation { win } {
-     
+    variable entrywidth
+    variable borderwidth
+    
+    # Fluid frame
+    set sections [GetSimulationValues]
+
+    foreach section $sections {
+        set sec_id [dict get $section id]
+        set sec_pn [dict get $section pn]
+        set fr_$sec_id [ttk::labelframe $win.$sec_id -text $sec_pn  -padding 10 ]
+        set currfr [set fr_$sec_id]
+        foreach prop [dict get $section props] {
+            set pn $::Wizard::wprops(Simulation,$prop,name)
+            set lab$prop [ttk::label $currfr.l$prop -text "${pn}:"]
+            set ent$prop [ttk::entry $currfr.e$prop -textvariable ::Wizard::wprops(Simulation,$prop,value) -width $entrywidth]
+            set labun$prop [ttk::label $currfr.u$prop]
+            wcb::callback $currfr.e$prop before insert wcb::checkEntryForReal
+            set txt [= "Enter a value for $pn"]
+            tooltip::tooltip $currfr.e$prop "${txt}."
+        }
+    }
+
+    foreach section $sections {
+        set sec_id [dict get $section id]
+        set sec fr_$sec_id
+        grid [set $sec] -padx 15 -column [dict get $section col] -row [dict get $section row] -sticky new
+        set j 0
+        foreach prop [dict get $section props] {
+            set lab "lab$prop"
+            set ent "ent$prop"
+            set labun "labun$prop"
+            
+            grid [expr $$lab] -column 1 -row $j -sticky w -pady 2
+            grid [expr $$ent] -column 2 -row $j -sticky w -pady 2
+            grid [expr $$labun] -column 3 -row $j -sticky w
+            incr j
+        }
+    }
+    
+}
+proc WindTunnelWizard::Wizard::GetSimulationValues { } {
+    set meshprops [dict create col 0 row 1 id "mesh" pn "Mesh settings" props [list immersed_size volume_size]]
+    set timeprops [dict create col 0 row 0 id "time" pn "Time settings" props [list time_step init_time end_time]]
+    set paraprops [dict create col 0 row 2 id "parallel" pn "Parallelism settings" props [list parallel_type n_threads]]
+    set advaprops [dict create col 1 row 0 id "advanced" pn "Advanced settings" props [list max_iter dyn_tau abs_toler rel_toler]]
+    set resuprops [dict create col 1 row 1 id "results" pn "Results" props [list time_bet drag]]
+    return [list $meshprops $timeprops $paraprops $advaprops $resuprops]
 }
 proc WindTunnelWizard::Wizard::NextSimulation { } {
 

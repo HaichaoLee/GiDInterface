@@ -17,7 +17,8 @@ proc Fluid::xml::ImportMeshWindow { } {
     GidUtils::DisableGraphics
     GiD_Layers create $model_name
     GiD_Layers edit to_use $model_name
-
+    GiD_Process 'Layers Color $model_name 255193060 
+    
     if {[lindex [GiD_Info Mesh] 0]} {
         GiD_Process Mescape Files STLRead Append $filename
     } else {
@@ -33,7 +34,7 @@ proc Fluid::xml::ImportMeshWindow { } {
     GiD_EntitiesGroups assign $model_name lines [GiD_EntitiesLayers get $model_name lines]
     GiD_EntitiesGroups assign $model_name points [GiD_EntitiesLayers get $model_name points]
 
-    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize selection {*}[GiD_EntitiesLayers get $model_name surfaces] escape escape
+    GiD_Process Mescape Meshing AssignSizes Surfaces $Fluid::xml::lastImportMeshSize Layer:$model_name escape escape
 
 
     GidUtils::EnableGraphics

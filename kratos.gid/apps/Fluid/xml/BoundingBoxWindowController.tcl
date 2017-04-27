@@ -154,6 +154,7 @@ proc Fluid::xml::BoundingBox::BuildBox { } {
     GiD_Layers edit to_use $boxname
     # GiD_Layers edit opaque $boxname 0
     # GiD_Layers edit visible $boxname 1
+    GiD_Process 'Layers Color $boxname 059184255 escape escape 
     GiD_Process 'Layers Transparent $boxname 127 escape escape 
 
     

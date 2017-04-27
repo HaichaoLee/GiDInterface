@@ -20,7 +20,7 @@ proc VirtualWindTunnel::AppSelectorWindow { } {
     
     set appsid [list "Fluid" "EmbeddedFluid"]
     set appspn [list "Body fitted" "Embedded mesh"]
-    set images [list "fluid.png" "embedded.png"]
+    set images [list "mesh_body_fitted.png" "mesh_embedded.png"]
     
     set col 0
     set row 0
