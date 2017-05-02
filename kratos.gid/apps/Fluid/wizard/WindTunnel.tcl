@@ -70,7 +70,7 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
      }
     
     update
-    $labIm configure -image [GetImage [expr int([winfo height $fr2]*0.85)]]
+    $labIm configure -image [GetImage $fr2]
 }
 proc WindTunnelWizard::Wizard::NextFluid { } {
     if {![GiD_Groups exists "FluidBox"]} {W "Fluid group must be named as 'FluidBox'"; return ""}
@@ -93,9 +93,19 @@ proc WindTunnelWizard::Wizard::GetFluidProperties { } {
     
     return $props
 }
-proc WindTunnelWizard::Wizard::GetImage {h} {
-    set ar [expr double([winfo width .gid.central.s]) / double([winfo height .gid.central.s])]
+proc WindTunnelWizard::Wizard::GetImage {fr} {
+    set h [expr int([winfo height $fr]*0.85)]
+    set wfr [winfo width $fr]
+    set hfr [winfo height $fr]
+    set wre [winfo width .gid.central.s]
+    set hre [winfo height .gid.central.s]
+    set ar [expr double($wre) / double($hre)]
     set w [expr int($h * $ar)]
+    if {$w > $wfr} {
+        set h [expr int($wfr / $ar)]
+        set w $wfr
+    }
+    set w [expr int($w*0.95)]
     set img1 [ image create photo -data [ GiD_Thumbnail get $w $h ]]
     return $img1
 }
@@ -250,7 +260,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         grid $combobody -column 2 -row 0 -sticky we -ipadx 2
         # W "pollo [winfo width $win]"
         update
-        $labIm configure -image [GetImage [expr int([winfo height $fr2]*0.85)]]
+        $labIm configure -image [GetImage $fr2]
 }
 proc WindTunnelWizard::Wizard::UpdateCheckBox { let sel } {
     if {$::Wizard::wprops(Conditions,$let,$sel)} {
@@ -267,8 +277,8 @@ proc WindTunnelWizard::Wizard::DrawConditions { but } {
     foreach node $gNodes {lappend groups [$node @n]}
     GiD_Groups draw [concat $::Wizard::wprops(Conditions,${but},value) $groups]
     GiD_Process 'Redraw
-    set h [expr int([winfo height .gid.activewizard.w.layoutFrame.wiz.layout.fr2] *0.85)]
-    $curr_image configure -image [GetImage $h]
+    set fr .gid.activewizard.w.layoutFrame.wiz.layout.fr2
+    $curr_image configure -image [GetImage $fr]
     GiD_Groups end_draw
     GiD_Process 'Redraw
 }
