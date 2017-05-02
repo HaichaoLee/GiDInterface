@@ -21,7 +21,7 @@ proc WindTunnelWizard::Wizard::Fluid { win } {
     variable borderwidth
     set gid_height [winfo screenheight .gid]
     set gid_width [winfo screenwidth .gid]
-    Wizard::SetWindowSize [expr int($gid_width *0.4)] [expr int($gid_height *0.6)]
+    Wizard::SetWindowSize [expr int($gid_width *0.4)] [expr int($gid_height *0.65)]
 
     # Left frame
     set labfr1 [ttk::labelframe $win.lfr1 -text [= "Fluid properties"] ]
