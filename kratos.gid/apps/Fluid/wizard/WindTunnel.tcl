@@ -7,6 +7,7 @@ namespace eval WindTunnelWizard::Wizard {
     variable intervalcurrframe
     variable intervaltable
     variable intervalselected
+    variable futureIntervals
 }
 
 proc WindTunnelWizard::Wizard::Init { } {
@@ -23,6 +24,9 @@ proc WindTunnelWizard::Wizard::Init { } {
     set intervaltable ""
     variable intervalselected
     set intervalselected ""
+    set ::Wizard::wprops(Conditions,modified) 1
+    variable futureIntervals
+    set  futureIntervals [list ]
 }
 
 proc WindTunnelWizard::Wizard::Fluid { win } {
@@ -146,7 +150,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set ::Wizard::wprops(Conditions,inlet,value) [lindex $values 0]
         }
         set comboinlet [ttk::combobox $labinl.cbinlet -values $values -textvariable ::Wizard::wprops(Conditions,inlet,value) -width $entrywidth -state readonly]
-        # bind $comboinlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+        bind $comboinlet <<ComboboxSelected>> [list set ::Wizard::wprops(Conditions,modified) 1] 
         set ::Wizard::wprops(Conditions,inlet,combo) $comboinlet
         set inletButton [ttk::button $labinl.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions inlet] -style IconButton]
@@ -160,7 +164,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             set ::Wizard::wprops(Conditions,outlet,value) [lindex $values 1]
         }
         set combooutlet [ttk::combobox $labout.cboutlet -values $values -textvariable ::Wizard::wprops(Conditions,outlet,value) -width $entrywidth -state readonly]
-        # bind $combooutlet <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+        bind $combooutlet <<ComboboxSelected>>  [list set ::Wizard::wprops(Conditions,modified) 1] 
         set ::Wizard::wprops(Conditions,outlet,combo) $combooutlet
         set outletButton [ttk::button $labout.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions outlet] -style IconButton]
@@ -274,6 +278,7 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         $labIm configure -image [GetImage $fr2]
 }
 proc WindTunnelWizard::Wizard::UpdateCheckBox { let sel } {
+    set ::Wizard::wprops(Conditions,modified) 1
     if {$::Wizard::wprops(Conditions,$let,$sel)} {
         lappend ::Wizard::wprops(Conditions,$let,value) $sel
     } {
@@ -294,12 +299,17 @@ proc WindTunnelWizard::Wizard::DrawConditions { but } {
     GiD_Process 'Redraw
 }
 proc WindTunnelWizard::Wizard::NextConditions { } {
-    gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition/group"
-    spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $::Wizard::wprops(Conditions,inlet,value)
-    spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]" $::Wizard::wprops(Conditions,outlet,value)
-    foreach v $::Wizard::wprops(Conditions,slip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Slip3D'\]" $v}
-    foreach v $::Wizard::wprops(Conditions,noslip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='NoSlip3D'\]" $v}
-    spdAux::RequestRefresh
+    variable futureIntervals
+    if {$::Wizard::wprops(Conditions,modified)} {
+        set futureIntervals [WindTunnelWizard::Wizard::GetIntervals]
+        gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition/group"
+        # spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $::Wizard::wprops(Conditions,inlet,value)
+        spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]" $::Wizard::wprops(Conditions,outlet,value)
+        foreach v $::Wizard::wprops(Conditions,slip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='Slip3D'\]" $v}
+        foreach v $::Wizard::wprops(Conditions,noslip,value) {spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='NoSlip3D'\]" $v}
+        spdAux::RequestRefresh
+        set ::Wizard::wprops(Conditions,modified) 0
+    }
 }
 proc WindTunnelWizard::Wizard::ConditionValues { win } {
     variable entrywidth
@@ -393,9 +403,31 @@ proc WindTunnelWizard::Wizard::ConditionValues { win } {
         grid $presslbl -column 1 -row 0 -sticky we -ipadx 2
         grid $entpres -column 2 -row 0 -sticky we -ipadx 2
         grid $labunpres -column 3 -row 0 -sticky we -ipadx 2
-        
+   
+   LoadIntervals     
 }
 
+proc WindTunnelWizard::Wizard::GetIntervals { } {
+    set ints [list ]
+    foreach group [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"] {
+        lassign [write::getInterval [get_domnode_attribute [$group find n Interval] v] ] ini end
+        set byf [get_domnode_attribute [$group find n ByFunction] v]
+        set fun [get_domnode_attribute [$group find n function_modulus] v]
+        set val [get_domnode_attribute [$group find n modulus] v]
+        lappend ints [list $ini $end [expr $byf == Yes ? 1 : 0] $fun $val]
+    }
+    return $ints
+}
+proc WindTunnelWizard::Wizard::LoadIntervals { } {
+    variable futureIntervals
+    set intervals $futureIntervals
+    if {$intervals eq ""} {set intervals [GetIntervals]} {set futureIntervals [list ]}
+    foreach interval $intervals {
+        lassign $interval ini end byf fun val
+        AddIntervalRow $ini $end $byf $fun $val
+    }
+    SortTable
+} 
 proc WindTunnelWizard::Wizard::SaveInterval { } { 
     variable intervalcurrframe
     DelIntervalRow
