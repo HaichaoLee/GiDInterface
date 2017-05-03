@@ -476,7 +476,8 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
     
 
     # Pasar info a outlet
-    
+    [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]/group/value\[@n='value'\]"] setAttribute v $::Wizard::wprops(ConditionValues,pressure,value)
+
     GidUtils::UpdateWindow GROUPS
     gid_groups_conds::check_dependencies
     spdAux::RequestRefresh
