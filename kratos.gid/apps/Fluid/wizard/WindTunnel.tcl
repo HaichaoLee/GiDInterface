@@ -5,6 +5,8 @@ namespace eval WindTunnelWizard::Wizard {
     variable borderwidth
     variable curr_image
     variable intervalcurrframe
+    variable intervaltable
+    variable intervalselected
 }
 
 proc WindTunnelWizard::Wizard::Init { } {
@@ -17,6 +19,10 @@ proc WindTunnelWizard::Wizard::Init { } {
     set curr_image ""
     variable intervalcurrframe
     set intervalcurrframe(pipo) ""
+    variable intervaltable
+    set intervaltable ""
+    variable intervalselected
+    set intervalselected ""
 }
 
 proc WindTunnelWizard::Wizard::Fluid { win } {
@@ -298,6 +304,7 @@ proc WindTunnelWizard::Wizard::NextConditions { } {
 proc WindTunnelWizard::Wizard::ConditionValues { win } {
     variable entrywidth
     variable borderwidth
+    variable intervaltable
     GiD_Process 'Rotate Angle -150 30
     
     # Left frame
@@ -309,21 +316,21 @@ proc WindTunnelWizard::Wizard::ConditionValues { win } {
         set sw [ScrolledWindow $labinl.lf ]
     
     package require tablelist_tile
-    set table [tablelist::tablelist $sw.table \
+    set intervaltable [tablelist::tablelist $sw.table \
             -selectmode single \
             -columns [list \
-                9 [_ "Init time"] left \
+                12 [_ "Init time"] left \
                 9 [_ "End time"] left \
                 3 [_ "v/f"] left \
                 8 [_ "Function"] left \
                 8 [_ "Value"] center \
                 ] \
             -stretch end ]
-    $sw setwidget $table
-    bind $table <<TablelistSelect>> [list WindTunnelWizard::Wizard::ChangeSelectInterval %W ] 
+    $sw setwidget $intervaltable
+    bind $intervaltable <<TablelistSelect>> [list WindTunnelWizard::Wizard::ChangeSelectInterval] 
     set botones [ttk::frame $labinl.buts]
-    set bAdd [ttk::button $botones.b1 -text "Add interval"      -command [list WindTunnelWizard::Wizard::AddIntervalRow $table]]
-    set bDel [ttk::button $botones.b2 -text "Remove interval"   -command [list WindTunnelWizard::Wizard::DelIntervalRow $table]]
+    set bAdd [ttk::button $botones.b1 -text "Add interval"      -command [list WindTunnelWizard::Wizard::AddIntervalRow ]]
+    set bDel [ttk::button $botones.b2 -text "Remove interval"   -command [list WindTunnelWizard::Wizard::DelIntervalRow ]]
         variable intervalcurrframe
         set frcu [ttk::labelframe $labinl.curr -text "Selected interval"]
         set intervalcurrframe(frame) $frcu
@@ -347,7 +354,7 @@ proc WindTunnelWizard::Wizard::ConditionValues { win } {
         set valuni [ttk::label $frcu.valuni -text "m/s"]
         set ::WindTunnelWizard::Wizard::intervalcurrframe(uniVal) $valuni
 
-        set bsave [ttk::button $frcu.bsave -text "Save" -command [list WindTunnelWizard::Wizard::SaveInterval $table] ]
+        set bsave [ttk::button $frcu.bsave -text "Save" -command [list WindTunnelWizard::Wizard::SaveInterval] ]
     # labelframe para el outlet
         # De las caras libres, pressure value
         set labout [ttk::labelframe $labfr1.outlet -text [= "Outlet"] -padding 10 ]
@@ -389,37 +396,43 @@ proc WindTunnelWizard::Wizard::ConditionValues { win } {
         
 }
 
-proc WindTunnelWizard::Wizard::SaveInterval { table } { 
+proc WindTunnelWizard::Wizard::SaveInterval { } { 
     variable intervalcurrframe
-    DelIntervalRow $table
-    AddIntervalRow $table $intervalcurrframe(ini) $intervalcurrframe(end) $intervalcurrframe(byf) $intervalcurrframe(fun) $intervalcurrframe(val)
-    SortTable $table
+    DelIntervalRow
+    AddIntervalRow $intervalcurrframe(ini) $intervalcurrframe(end) $intervalcurrframe(byf) $intervalcurrframe(fun) $intervalcurrframe(val)
+    SortTable
     # grid forget $intervalcurrframe(frame)
 }
-proc WindTunnelWizard::Wizard::ChangeSelectInterval { table } {
+proc WindTunnelWizard::Wizard::ChangeSelectInterval { } {
     variable intervalcurrframe
+    variable intervaltable
+    variable intervalselected
+    set intervalselected [$intervaltable curselection]
     set frcu $intervalcurrframe(frame)
     grid $frcu -sticky wens
     grid columnconfigure $frcu 3 -weight 1
-    lassign [$table get [$table curselection]] intervalcurrframe(ini) intervalcurrframe(end) intervalcurrframe(byf) intervalcurrframe(fun) intervalcurrframe(val)
+    lassign [$intervaltable get $intervalselected] intervalcurrframe(ini) intervalcurrframe(end) intervalcurrframe(byf) intervalcurrframe(fun) intervalcurrframe(val)
     ChangedByFuncButton
 }
 
-proc WindTunnelWizard::Wizard::SortTable {table} {
-    $table sortbycolumn 0
+proc WindTunnelWizard::Wizard::SortTable { } {
+    variable intervaltable
+    $intervaltable sortbycolumn 0
 }
-proc WindTunnelWizard::Wizard::AddIntervalRow {table {ini "0.0"} {end "10"} {byf 1} {fun "sin(x)"} {val "10.0"} } {
+proc WindTunnelWizard::Wizard::AddIntervalRow {{ini "0.0"} {end "10"} {byf 1} {fun "sin(x)"} {val "10.0"} } {
+    variable intervaltable
     if {$byf} {set val ""} {set fun ""}
-    $table insert 0 [list $ini $end $byf $fun $val]
+    $intervaltable insert 0 [list $ini $end $byf $fun $val]
 }
-proc WindTunnelWizard::Wizard::DelIntervalRow {table} {
+proc WindTunnelWizard::Wizard::DelIntervalRow { } {
     variable intervalcurrframe
-    set sel [$table curselection]
-    $table delete $sel
+    variable intervaltable
+    variable intervalselected
+    $intervaltable delete $intervalselected
     grid forget $intervalcurrframe(frame)
 }
 
-proc  WindTunnelWizard::Wizard::ChangedByFuncButton { } {
+proc WindTunnelWizard::Wizard::ChangedByFuncButton { } {
     variable intervalcurrframe
     if {$intervalcurrframe(byf)} {
         grid forget $intervalcurrframe(entVal)
@@ -437,10 +450,36 @@ proc  WindTunnelWizard::Wizard::ChangedByFuncButton { } {
     
 }
 proc WindTunnelWizard::Wizard::NextConditionValues { } {
+    variable intervaltable
     # Crear los intervalos
-    # Pasar info a inlet
+    gid_groups_conds::delete "[spdAux::getRoute Intervals]/blockdata"
+    set i 0
+    set inlet_group $::Wizard::wprops(Conditions,inlet,value)
+    gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"
+    
+    foreach row [$intervaltable get 0 end] {
+        incr i
+        set interval [gid_groups_conds::add [spdAux::getRoute Intervals] blockdata [list n "Interval" pn "Interval" name "Interval_$i" sequence "1" editable_name "unique" sequence_type "non_void_disabled" help "Interval"]]
+        lassign $row ini end byf fun val
+        gid_groups_conds::add [$interval toXPath] value [list n "IniTime" pn "Start time" v $ini state "normal" help "When do the interval starts?"]
+        gid_groups_conds::add [$interval toXPath] value [list n "EndTime" pn "End time"   v $end state "normal" help "When do the interval ends?"]
+        
+        # Pasar info a inlet
+        set gname "${inlet_group}//Interval_$i"
+        if {![GiD_Groups exists $gname]} {GiD_Groups create $gname}
+        set inlet [spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $gname]
+        [$inlet selectNodes "./value\[@n='ByFunction'\]"] setAttribute v [expr $byf ? Yes : No]
+        [$inlet selectNodes "./value\[@n='function_modulus'\]"] setAttribute v $fun
+        [$inlet selectNodes "./value\[@n='modulus'\]"] setAttribute v $val
+        [$inlet selectNodes "./value\[@n='Interval'\]"] setAttribute v "Interval_$i"
+    }
+    
 
     # Pasar info a outlet
+    
+    GidUtils::UpdateWindow GROUPS
+    gid_groups_conds::check_dependencies
+    spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::Simulation { win } {
     variable entrywidth
