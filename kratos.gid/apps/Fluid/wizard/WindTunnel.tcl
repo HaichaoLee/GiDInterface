@@ -484,13 +484,14 @@ proc WindTunnelWizard::Wizard::ChangedByFuncButton { } {
 proc WindTunnelWizard::Wizard::NextConditionValues { } {
     variable intervaltable
     # Crear los intervalos
-    gid_groups_conds::delete "[spdAux::getRoute Intervals]/blockdata"
     set i 0
     set inlet_group $::Wizard::wprops(Conditions,inlet,value)
     gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"
     
     foreach row [$intervaltable get 0 end] {
         incr i
+        
+        gid_groups_conds::delete "[spdAux::getRoute Intervals]/blockdata\[@name = 'Interval_$i'\]"
         set interval [gid_groups_conds::add [spdAux::getRoute Intervals] blockdata [list n "Interval" pn "Interval" name "Interval_$i" sequence "1" editable_name "unique" sequence_type "non_void_disabled" help "Interval"]]
         lassign $row ini end byf fun val
         gid_groups_conds::add [$interval toXPath] value [list n "IniTime" pn "Start time" v $ini state "normal" help "When do the interval starts?"]
@@ -498,14 +499,15 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
         
         # Pasar info a inlet
         set gname ${inlet_group}
-        if {![GiD_Groups exists $gname]} {GiD_Groups create $gname}
+        # if {![GiD_Groups exists $gname]} {GiD_Groups create $gname}
         set inlet [spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $gname]
         
         [$inlet selectNodes "./value\[@n='ByFunction'\]"] setAttribute v [expr $byf ? Yes : No]
         [$inlet selectNodes "./value\[@n='function_modulus'\]"] setAttribute v $fun
         [$inlet selectNodes "./value\[@n='modulus'\]"] setAttribute v $val
         [$inlet selectNodes "./value\[@n='Interval'\]"] setAttribute v "Interval_$i"
-        spdAux::ProcOkNewCondition $inlet
+        
+        spdAux::ProcOkNewCondition [$inlet parent]
     }
     
 
@@ -618,11 +620,15 @@ proc WindTunnelWizard::Wizard::NextSimulation { } {
     [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'absolute_pressure_tolerance'\]"] setAttribute v $::Wizard::wprops(Simulation,abs_toler,value)
     # Results settings
     [$root selectNodes "[spdAux::getRoute Results]/value\[@n = 'OutputDeltaTime'\]"] setAttribute v $::Wizard::wprops(Simulation,time_bet,value)
-    if { [write::isBooleanTrue $::Wizard::wprops(Simulation,drag,value) ]} {
-        W "Drag"
-    }
 
     
+    gid_groups_conds::delete "[spdAux::getRoute Results]/condition\[@n='Drag'\]/group"
+    if { [write::isBooleanTrue $::Wizard::wprops(Simulation,drag,value) ]} {
+        foreach node [$root selectNodes "[spdAux::getRoute FLImportedParts]/group"] {
+            set dr_gr [spdAux::AddConditionGroupOnXPath "[spdAux::getRoute Results]/condition\[@n='Drag'\]" [$node @n]]
+        }
+    }
+
     gid_groups_conds::check_dependencies
     spdAux::RequestRefresh
 }

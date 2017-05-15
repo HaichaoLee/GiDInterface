@@ -35,9 +35,9 @@
         <Item n="parallel_type"  pn="Parallel type" v="OpenMP" values="OpenMP,MPI" type="combo"/>
         <Item n="n_threads"  pn="Number of threads" v="4"/>
         <Item n="max_iter"  pn="Max number of iterations" v="10"/>
-        <Item n="dyn_tau"  pn="Dynamic tau" v="10-2"/>
-        <Item n="abs_toler"  pn="Absolute tolerance" v="10-5"/>
-        <Item n="rel_toler"  pn="Relative tolerance" v="10-3"/>
+        <Item n="dyn_tau"  pn="Dynamic tau" v="10e-2"/>
+        <Item n="abs_toler"  pn="Absolute tolerance" v="10e-5"/>
+        <Item n="rel_toler"  pn="Relative tolerance" v="10e-3"/>
         <Item n="time_bet"  pn="Time between outputs" v="0.1"/>
         <Item n="drag"  pn="Calculate drag" v="False" values="True,False" type="combo"/>
       </Data>
