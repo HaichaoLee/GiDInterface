@@ -32,7 +32,7 @@
         <Item n="time_step"  pn="Time step" v="0" units="s"/>
         <Item n="init_time"  pn="Start time" v="0" units="s"/>
         <Item n="end_time"  pn="End time" v="0" units="s"/>
-        <Item n="parallel_type"  pn="Parallel type" v="0" values="OpenMP,MPI" type="combo"/>
+        <Item n="parallel_type"  pn="Parallel type" v="OpenMP" values="OpenMP,MPI" type="combo"/>
         <Item n="n_threads"  pn="Number of threads" v="0"/>
         <Item n="max_iter"  pn="Max number of iterations" v="0"/>
         <Item n="dyn_tau"  pn="Dynamic tau" v="0"/>

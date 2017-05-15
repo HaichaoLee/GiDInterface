@@ -531,9 +531,13 @@ proc WindTunnelWizard::Wizard::Simulation { win } {
         foreach prop [dict get $section props] {
             set pn $::Wizard::wprops(Simulation,$prop,name)
             set lab$prop [ttk::label $currfr.l$prop -text "${pn}:"]
-            set ent$prop [ttk::entry $currfr.e$prop -textvariable ::Wizard::wprops(Simulation,$prop,value) -width $entrywidth]
+            if {$::Wizard::wprops(Simulation,$prop,type) ne "combo"} {
+                set ent$prop [ttk::entry $currfr.e$prop -textvariable ::Wizard::wprops(Simulation,$prop,value) -width $entrywidth]
+                wcb::callback $currfr.e$prop before insert wcb::checkEntryForReal
+            } else {
+                set ent$prop [ttk::combobox $currfr.e$prop -textvariable ::Wizard::wprops(Simulation,$prop,value) -values $::Wizard::wprops(Simulation,$prop,values) -width $entrywidth -state readonly]
+            }
             set labun$prop [ttk::label $currfr.u$prop]
-            wcb::callback $currfr.e$prop before insert wcb::checkEntryForReal
             set txt [= "Enter a value for $pn"]
             tooltip::tooltip $currfr.e$prop "${txt}."
         }
@@ -557,9 +561,9 @@ proc WindTunnelWizard::Wizard::Simulation { win } {
     }
     
     set buttons_frame [ttk::frame $win.buttons_frame -padding 15 ]
-    set button_save [ttk::button $buttons_frame.btnsave -text "Save" -command [list GiD_Process escape Files Save ]]
-    set button_mesh [ttk::button $buttons_frame.btnmesh -text "Mesh" -command [list MeshGenerationOKDo 0.5]]
-    set button_run  [ttk::button $buttons_frame.btnrun  -text "Run"  -command [list GiD_Process Mescape Utilities Calculate escape]]
+    set button_save [ttk::button $buttons_frame.btnsave -text "Save" -command [list WindTunnelWizard::Wizard::SaveButton]]
+    set button_mesh [ttk::button $buttons_frame.btnmesh -text "Mesh" -command [list WindTunnelWizard::Wizard::MeshButton]]
+    set button_run  [ttk::button $buttons_frame.btnrun  -text "Run"  -command [list WindTunnelWizard::Wizard::RunButton]]
 
     grid $buttons_frame -column 1 -row 2 -sticky new
     grid $button_save -sticky new
@@ -576,8 +580,27 @@ proc WindTunnelWizard::Wizard::GetSimulationValues { } {
     set resuprops [dict create col 1 row 1 id "results" pn "Results" props [list time_bet drag]]
     return [list $meshprops $timeprops $paraprops $advaprops $resuprops]
 }
-proc WindTunnelWizard::Wizard::NextSimulation { } {
 
+proc WindTunnelWizard::Wizard::SaveButton { } {
+    # $::ChangeVarInfo(LoadMeshingPrefOfModel) 
+    NextSimulation
+    GiD_Process escape Files Save 
+}
+
+proc WindTunnelWizard::Wizard::MeshButton { } {
+    # Quitar en GiD 13.1.7d
+    NextSimulation
+    if {![info exists ::ChangeVarInfo(LoadMeshingPrefOfModel) ]} {set ::ChangeVarInfo(LoadMeshingPrefOfModel) 0}
+    MeshGenerationOKDo 0.5
+}
+
+proc WindTunnelWizard::Wizard::RunButton { } {
+    # $::ChangeVarInfo(LoadMeshingPrefOfModel) 
+    NextSimulation
+    GiD_Process Mescape Utilities Calculate escape
+}
+proc WindTunnelWizard::Wizard::NextSimulation { } {
+    # Cosas al arbol
 }
 
 
