@@ -29,17 +29,17 @@
         <Item n="Visited" v="0"/>
         <Item n="immersed_size" pn="Immersed body mesh size" v="0"/>
         <Item n="volume_size"  pn="Fluid volume mesh size" v="0"/>
-        <Item n="time_step"  pn="Time step" v="0" units="s"/>
+        <Item n="time_step"  pn="Time step" v="0.1" units="s"/>
         <Item n="init_time"  pn="Start time" v="0" units="s"/>
-        <Item n="end_time"  pn="End time" v="0" units="s"/>
+        <Item n="end_time"  pn="End time" v="10" units="s"/>
         <Item n="parallel_type"  pn="Parallel type" v="OpenMP" values="OpenMP,MPI" type="combo"/>
-        <Item n="n_threads"  pn="Number of threads" v="0"/>
-        <Item n="max_iter"  pn="Max number of iterations" v="0"/>
-        <Item n="dyn_tau"  pn="Dynamic tau" v="0"/>
-        <Item n="abs_toler"  pn="Absolute tolerance" v="0"/>
-        <Item n="rel_toler"  pn="Relative tolerance" v="0"/>
-        <Item n="time_bet"  pn="Time between outputs" v="0"/>
-        <Item n="drag"  pn="Calculate drag" v="True" values="True,False" type="combo"/>
+        <Item n="n_threads"  pn="Number of threads" v="4"/>
+        <Item n="max_iter"  pn="Max number of iterations" v="10"/>
+        <Item n="dyn_tau"  pn="Dynamic tau" v="10-2"/>
+        <Item n="abs_toler"  pn="Absolute tolerance" v="10-5"/>
+        <Item n="rel_toler"  pn="Relative tolerance" v="10-3"/>
+        <Item n="time_bet"  pn="Time between outputs" v=".1"/>
+        <Item n="drag"  pn="Calculate drag" v="False" values="True,False" type="combo"/>
       </Data>
     </Step>
   </Steps>
