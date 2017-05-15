@@ -574,9 +574,9 @@ proc WindTunnelWizard::Wizard::Simulation { win } {
 }
 proc WindTunnelWizard::Wizard::GetSimulationValues { } {
     set meshprops [dict create col 0 row 1 id "mesh" pn "Mesh settings" props [list immersed_size volume_size]]
-    set timeprops [dict create col 0 row 0 id "time" pn "Time settings" props [list time_step init_time end_time]]
-    set paraprops [dict create col 0 row 2 id "parallel" pn "Parallelism settings" props [list parallel_type n_threads]]
-    set advaprops [dict create col 1 row 0 id "advanced" pn "Advanced settings" props [list max_iter dyn_tau abs_toler rel_toler]]
+    set timeprops [dict create col 0 row 0 id "time" pn "Time settings" props [list time_step end_time]]
+    set paraprops [dict create col 1 row 0 id "parallel" pn "Parallelism settings" props [list parallel_type n_threads]]
+    set advaprops [dict create col 0 row 2 id "advanced" pn "Advanced settings" props [list max_iter dyn_tau abs_toler rel_toler]]
     set resuprops [dict create col 1 row 1 id "results" pn "Results" props [list time_bet drag]]
     return [list $meshprops $timeprops $paraprops $advaprops $resuprops]
 }
@@ -588,8 +588,8 @@ proc WindTunnelWizard::Wizard::SaveButton { } {
 }
 
 proc WindTunnelWizard::Wizard::MeshButton { } {
-    # Quitar en GiD 13.1.7d
     NextSimulation
+    # Quitar en GiD 13.1.7d
     if {![info exists ::ChangeVarInfo(LoadMeshingPrefOfModel) ]} {set ::ChangeVarInfo(LoadMeshingPrefOfModel) 0}
     MeshGenerationOKDo 0.5
 }
@@ -601,6 +601,30 @@ proc WindTunnelWizard::Wizard::RunButton { } {
 }
 proc WindTunnelWizard::Wizard::NextSimulation { } {
     # Cosas al arbol
+    set root [customlib::GetBaseRoot]
+    
+    # Time settings
+    [$root selectNodes "[spdAux::getRoute FLTimeParameters]/value\[@n = 'EndTime'\]"] setAttribute v $::Wizard::wprops(Simulation,end_time,value)
+    [$root selectNodes "[spdAux::getRoute FLTimeParameters]/value\[@n = 'DeltaTime'\]"] setAttribute v $::Wizard::wprops(Simulation,time_step,value)
+    # Parallel settings
+    [$root selectNodes "[spdAux::getRoute Parallelization]/value\[@n = 'ParallelSolutionType'\]"] setAttribute v $::Wizard::wprops(Simulation,parallel_type,value)
+    [$root selectNodes "[spdAux::getRoute Parallelization]/value\[@n = 'OpenMPNumberOfThreads'\]"] setAttribute v $::Wizard::wprops(Simulation,n_threads,value)
+    # Strategy settings
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'maximum_iterations'\]"] setAttribute v $::Wizard::wprops(Simulation,max_iter,value)
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'dynamic_tau'\]"] setAttribute v $::Wizard::wprops(Simulation,dyn_tau,value)
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'relative_velocity_tolerance'\]"] setAttribute v $::Wizard::wprops(Simulation,rel_toler,value)
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'absolute_velocity_tolerance'\]"] setAttribute v $::Wizard::wprops(Simulation,abs_toler,value)
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'relative_pressure_tolerance'\]"] setAttribute v $::Wizard::wprops(Simulation,rel_toler,value)
+    [$root selectNodes "[spdAux::getRoute FLStratParams]/value\[@n = 'absolute_pressure_tolerance'\]"] setAttribute v $::Wizard::wprops(Simulation,abs_toler,value)
+    # Results settings
+    [$root selectNodes "[spdAux::getRoute Results]/value\[@n = 'OutputDeltaTime'\]"] setAttribute v $::Wizard::wprops(Simulation,time_bet,value)
+    if { [write::isBooleanTrue $::Wizard::wprops(Simulation,drag,value) ]} {
+        W "Drag"
+    }
+
+    
+    gid_groups_conds::check_dependencies
+    spdAux::RequestRefresh
 }
 
 
