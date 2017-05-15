@@ -487,7 +487,7 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
     set i 0
     set inlet_group $::Wizard::wprops(Conditions,inlet,value)
     gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"
-    
+    set max_end 0
     foreach row [$intervaltable get 0 end] {
         incr i
         
@@ -496,7 +496,8 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
         lassign $row ini end byf fun val
         gid_groups_conds::add [$interval toXPath] value [list n "IniTime" pn "Start time" v $ini state "normal" help "When do the interval starts?"]
         gid_groups_conds::add [$interval toXPath] value [list n "EndTime" pn "End time"   v $end state "normal" help "When do the interval ends?"]
-        
+        if {$end > $max_end} {set max_end $end}
+
         # Pasar info a inlet
         set gname ${inlet_group}
         # if {![GiD_Groups exists $gname]} {GiD_Groups create $gname}
@@ -510,6 +511,7 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
         spdAux::ProcOkNewCondition [$inlet parent]
     }
     
+    set ::Wizard::wprops(Simulation,end_time,value) $max_end
 
     # Pasar info a outlet
     [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]/group/value\[@n='value'\]"] setAttribute v $::Wizard::wprops(ConditionValues,pressure,value)
