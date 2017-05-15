@@ -554,6 +554,17 @@ proc WindTunnelWizard::Wizard::Simulation { win } {
         }
     }
     
+    set buttons_frame [ttk::frame $win.buttons_frame -padding 15 ]
+    set button_save [ttk::button $buttons_frame.btnsave -text "Save" -command [list GiD_Process escape Files Save ]]
+    set button_mesh [ttk::button $buttons_frame.btnmesh -text "Mesh" -command [list MeshGenerationOKDo 0.5]]
+    set button_run  [ttk::button $buttons_frame.btnrun  -text "Run"  -command [list GiD_Process Mescape Utilities Calculate escape]]
+
+    grid $buttons_frame -column 1 -row 2 -sticky new
+    grid $button_save -sticky new
+    grid $button_mesh -sticky new
+    grid $button_run -sticky new
+
+    grid columnconfigure $buttons_frame 0 -weight 2
 }
 proc WindTunnelWizard::Wizard::GetSimulationValues { } {
     set meshprops [dict create col 0 row 1 id "mesh" pn "Mesh settings" props [list immersed_size volume_size]]
