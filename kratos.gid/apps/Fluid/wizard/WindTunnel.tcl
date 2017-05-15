@@ -497,13 +497,15 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
         gid_groups_conds::add [$interval toXPath] value [list n "EndTime" pn "End time"   v $end state "normal" help "When do the interval ends?"]
         
         # Pasar info a inlet
-        set gname "${inlet_group}//Interval_$i"
+        set gname ${inlet_group}
         if {![GiD_Groups exists $gname]} {GiD_Groups create $gname}
         set inlet [spdAux::AddConditionGroupOnXPath "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]" $gname]
+        
         [$inlet selectNodes "./value\[@n='ByFunction'\]"] setAttribute v [expr $byf ? Yes : No]
         [$inlet selectNodes "./value\[@n='function_modulus'\]"] setAttribute v $fun
         [$inlet selectNodes "./value\[@n='modulus'\]"] setAttribute v $val
         [$inlet selectNodes "./value\[@n='Interval'\]"] setAttribute v "Interval_$i"
+        spdAux::ProcOkNewCondition $inlet
     }
     
 
