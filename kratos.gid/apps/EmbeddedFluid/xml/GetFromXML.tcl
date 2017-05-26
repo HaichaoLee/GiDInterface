@@ -76,9 +76,11 @@ proc EmbeddedFluid::xml::WindTunnelImportPart {args} {
 proc EmbeddedFluid::xml::NeedToCropVolume { } {
     return 0
 }
+
 proc EmbeddedFluid::xml::WindTunnelGetFluidMaterialProperties { } {
     return [list DENSITY DYNAMIC_VISCOSITY]
 }
+
 proc EmbeddedFluid::xml::NeedApplyConditionToBody { } {
     return 0
 }

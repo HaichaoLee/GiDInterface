@@ -91,7 +91,7 @@ proc WindTunnelWizard::Wizard::NextFluid { } {
     if {![GiD_Groups exists "FluidBox"]} {W "Fluid group must be named as 'FluidBox'"; return ""}
     gid_groups_conds::delete "[spdAux::getRoute FLParts]/group"
     set gnode [spdAux::AddConditionGroupOnXPath [spdAux::getRoute FLParts] "FluidBox"]
-    set props [apps::ExecuteOnCurrentXML GetFluidMaterialProperties]
+    set props [apps::ExecuteOnCurrentXML WindTunnelGetFluidMaterialProperties]
     foreach prop $props {
         [$gnode selectNodes "./value\[@n = '$prop'\]"] setAttribute v $::Wizard::wprops(Material,$prop,value)
     }
@@ -99,7 +99,7 @@ proc WindTunnelWizard::Wizard::NextFluid { } {
 }
 proc WindTunnelWizard::Wizard::GetFluidProperties { } {
     # FLuid has viscosity, embedded has dynamic viscosity
-    set props [apps::ExecuteOnCurrentXML GetFluidMaterialProperties]
+    set props [apps::ExecuteOnCurrentXML WindTunnelGetFluidMaterialProperties]
     foreach prop $props {
         set node [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLParts]/group"]
         if {$node eq ""} {set node [[customlib::GetBaseRoot] selectNodes [spdAux::getRoute FLParts]]}
@@ -511,6 +511,7 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
     set i 0
     set inlet_group $::Wizard::wprops(Conditions,inlet,value)
     gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"
+    set max_end 0.0
     foreach row [$intervaltable get 0 end] {
         incr i
         
@@ -519,6 +520,7 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
         lassign $row ini end byf fun val
         gid_groups_conds::add [$interval toXPath] value [list n "IniTime" pn "Start time" v $ini state "normal" help "When do the interval starts?"]
         gid_groups_conds::add [$interval toXPath] value [list n "EndTime" pn "End time"   v $end state "normal" help "When do the interval ends?"]
+        if {$end > $max_end} {set max_end $end}
 
         # Pasar info a inlet
         set gname ${inlet_group}
@@ -535,6 +537,7 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
 
     # Pasar info a outlet
     [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLBC]/condition\[@n='Outlet3D'\]/group/value\[@n='value'\]"] setAttribute v $::Wizard::wprops(ConditionValues,pressure,value)
+    set ::Wizard::wprops(Simulation,end_time,value) $max_end
 
     GidUtils::UpdateWindow GROUPS
     gid_groups_conds::check_dependencies
@@ -546,8 +549,6 @@ proc WindTunnelWizard::Wizard::Simulation { win } {
     
     # Fluid frame
     set sections [GetSimulationValues]
-    
-    set ::Wizard::wprops(Simulation,end_time,value) [MaxIntervalEndTime]
 
     foreach section $sections {
         set sec_id [dict get $section id]
@@ -645,13 +646,27 @@ proc WindTunnelWizard::Wizard::NextSimulation { } {
     # Results settings
     [$root selectNodes "[spdAux::getRoute Results]/value\[@n = 'OutputDeltaTime'\]"] setAttribute v $::Wizard::wprops(Simulation,time_bet,value)
 
-    
+    # Mesh settings
+    if {$::Wizard::wprops(Simulation,volume_size,value) > 0} {
+        foreach fluid_group [$root selectNodes "[spdAux::getRoute FLParts]/group"] {
+            set fluid_group [$fluid_group @n]
+                GiD_Process Mescape Meshing AssignSizes volumes $::Wizard::wprops(Simulation,volume_size,value) {*}[GiD_EntitiesGroups get $fluid_group volumes] escape escape
+        }
+    }
+    if {$::Wizard::wprops(Simulation,immersed_size,value) > 0} {
+        foreach fluid_group [$root selectNodes "[spdAux::getRoute FLImportedParts]/group"] {
+            set fluid_group [$fluid_group @n]
+                GiD_Process Mescape Meshing AssignSizes surfaces $::Wizard::wprops(Simulation,immersed_size,value) {*}[GiD_EntitiesGroups get $fluid_group surfaces] escape escape
+        }
+    }
+
     gid_groups_conds::delete "[spdAux::getRoute Results]/condition\[@n='Drag'\]/group"
     if { [write::isBooleanTrue $::Wizard::wprops(Simulation,drag,value) ]} {
         foreach node [$root selectNodes "[spdAux::getRoute FLImportedParts]/group"] {
             set dr_gr [spdAux::AddConditionGroupOnXPath "[spdAux::getRoute Results]/condition\[@n='Drag'\]" [$node @n]]
         }
     }
+    [$root selectNodes "[spdAux::getRoute FLImportedParts]/group/value\[@n = 'MeshSize'\]"] setAttribute v $::Wizard::wprops(Simulation,immersed_size,value)
 
     gid_groups_conds::check_dependencies
     spdAux::RequestRefresh

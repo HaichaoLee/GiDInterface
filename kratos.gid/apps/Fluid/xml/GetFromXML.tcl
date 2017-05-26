@@ -50,7 +50,7 @@ proc Fluid::xml::NeedToCropVolume { } {
 proc Fluid::xml::WindTunnelGetFluidMaterialProperties { } {
     return [list DENSITY VISCOSITY]
 }
-proc EmbeddedFluid::xml::NeedApplyConditionToBody { } {
+proc Fluid::xml::NeedApplyConditionToBody { } {
     return 1
 }
 
