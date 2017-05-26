@@ -91,12 +91,15 @@ proc WindTunnelWizard::Wizard::NextFluid { } {
     if {![GiD_Groups exists "FluidBox"]} {W "Fluid group must be named as 'FluidBox'"; return ""}
     gid_groups_conds::delete "[spdAux::getRoute FLParts]/group"
     set gnode [spdAux::AddConditionGroupOnXPath [spdAux::getRoute FLParts] "FluidBox"]
-    [$gnode selectNodes "./value\[@n = 'DENSITY'\]"] setAttribute v $::Wizard::wprops(Material,DENSITY,value)
-    [$gnode selectNodes "./value\[@n = 'VISCOSITY'\]"] setAttribute v $::Wizard::wprops(Material,VISCOSITY,value)
+    set props [apps::ExecuteOnCurrentXML GetFluidMaterialProperties]
+    foreach prop $props {
+        [$gnode selectNodes "./value\[@n = '$prop'\]"] setAttribute v $::Wizard::wprops(Material,$prop,value)
+    }
     spdAux::RequestRefresh
 }
 proc WindTunnelWizard::Wizard::GetFluidProperties { } {
-    set props [list DENSITY VISCOSITY]
+    # FLuid has viscosity, embedded has dynamic viscosity
+    set props [apps::ExecuteOnCurrentXML GetFluidMaterialProperties]
     foreach prop $props {
         set node [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLParts]/group"]
         if {$node eq ""} {set node [[customlib::GetBaseRoot] selectNodes [spdAux::getRoute FLParts]]}
@@ -200,15 +203,18 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
         set noslipButton [ttk::button $labnoslip.but -image [gid_themes::GetImage group_draw.png small_icons] \
         -command [list WindTunnelWizard::Wizard::DrawConditions noslip] -style IconButton]
     # labelframe para el immersedbody solo fluid
-        #slip/noslip
-        set labimm [ttk::labelframe $labfr1.immersed -text [= "Immersed body"] -padding 10 ]
-        set immlbl [ttk::label $labimm.immlbl -text "Body skin:"]
-        if {![array exists ::Wizard::wprops(Conditions,body,value)]} {
-            set ::Wizard::wprops(Conditions,body,value) Slip
+        set embeddedcmb [apps::ExecuteOnCurrentXML NeedApplyConditionToBody]
+        if {$embeddedcmb} {
+            #slip/noslip
+            set labimm [ttk::labelframe $labfr1.immersed -text [= "Immersed body"] -padding 10 ]
+            set immlbl [ttk::label $labimm.immlbl -text "Body skin:"]
+            if {![array exists ::Wizard::wprops(Conditions,body,value)]} {
+                set ::Wizard::wprops(Conditions,body,value) Slip
+            }
+            set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
+            # bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
+            set ::Wizard::wprops(Conditions,inlet,combo) $combobody
         }
-        set combobody [ttk::combobox $labimm.cbinlet -values {Slip "No slip"} -textvariable ::Wizard::wprops(Conditions,body,value) -width $entrywidth -state readonly]
-        # bind $combobody <<ComboboxSelected>> [list WindTunnelWizard::Wizard::ChangeCondition %W] 
-        set ::Wizard::wprops(Conditions,inlet,combo) $combobody
 
     grid $fr2 -column 1 -sticky nsew
     
@@ -270,10 +276,12 @@ proc WindTunnelWizard::Wizard::Conditions { win } {
             incr c
         }
         # Body
-        grid $labimm -column 1 -row 4 -sticky we -ipadx 2
-        grid $immlbl -column 1 -row 0 -sticky we -ipadx 2
-        grid $combobody -column 2 -row 0 -sticky we -ipadx 2
-        # W "pollo [winfo width $win]"
+        if {$embeddedcmb} {
+            grid $labimm -column 1 -row 4 -sticky we -ipadx 2
+            grid $immlbl -column 1 -row 0 -sticky we -ipadx 2
+            grid $combobody -column 2 -row 0 -sticky we -ipadx 2
+        }
+        
         update
         $labIm configure -image [GetImage $fr2]
 }

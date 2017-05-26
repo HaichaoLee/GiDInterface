@@ -178,8 +178,7 @@ proc Wizard::GetStepProperties { stepid } {
 proc Wizard::SetWindowSize {x y} {
     variable wizwindow
     wm minsize $wizwindow $x $y
-    wm maxsize $wizwindow $x $y
-    
+    # wm maxsize $wizwindow $x $y
 }
 
 Wizard::Init

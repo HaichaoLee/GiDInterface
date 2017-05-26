@@ -47,5 +47,11 @@ proc Fluid::xml::CustomTree { args } {
 proc Fluid::xml::NeedToCropVolume { } {
     return 1
 }
+proc Fluid::xml::WindTunnelGetFluidMaterialProperties { } {
+    return [list DENSITY VISCOSITY]
+}
+proc EmbeddedFluid::xml::NeedApplyConditionToBody { } {
+    return 1
+}
 
 Fluid::xml::Init
