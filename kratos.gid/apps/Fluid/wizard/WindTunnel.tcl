@@ -605,6 +605,7 @@ proc WindTunnelWizard::Wizard::GetSimulationValues { } {
     set paraprops [dict create col 1 row 0 id "parallel" pn "Parallelism settings" props [list parallel_type n_threads]]
     set advaprops [dict create col 0 row 2 id "advanced" pn "Advanced settings" props [list max_iter dyn_tau abs_toler rel_toler]]
     set resuprops [dict create col 1 row 1 id "results" pn "Results" props [list time_bet drag]]
+    set ::Wizard::wprops(Simulation,immersed_size,value) [get_domnode_attribute [lindex [[customlib::GetBaseRoot] selectNodes "[spdAux::getRoute FLImportedParts]/group/value\[@n = 'MeshSize'\]"] 0] v]
     return [list $meshprops $timeprops $paraprops $advaprops $resuprops]
 }
 
