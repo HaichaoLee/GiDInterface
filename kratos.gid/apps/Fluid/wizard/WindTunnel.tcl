@@ -511,6 +511,11 @@ proc WindTunnelWizard::Wizard::NextConditionValues { } {
     set i 0
     set inlet_group $::Wizard::wprops(Conditions,inlet,value)
     gid_groups_conds::delete "[spdAux::getRoute FLBC]/condition\[@n='AutomaticInlet3D'\]/group"
+    foreach group [GiD_Groups list] {
+        if {[string first "${inlet_group}//" $group] != -1} {
+            GiD_Groups delete $group
+        }
+    }
     set max_end 0.0
     foreach row [$intervaltable get 0 end] {
         incr i
