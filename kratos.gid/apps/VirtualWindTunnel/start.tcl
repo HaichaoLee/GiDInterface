@@ -23,7 +23,7 @@ proc ::VirtualWindTunnel::Init { } {
     # Allow to open the tree
     set ::spdAux::TreeVisibility 0
 
-    dict set attributes UseIntervals 0
+    dict set attributes UseIntervals 1
 
     LoadMyFiles
     VirtualWindTunnel::AppSelectorWindow
