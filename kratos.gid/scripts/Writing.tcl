@@ -1202,6 +1202,7 @@ proc write::WriteMPIbatFile {un} {
     set fd [GiD_File fopen [file join $model_dir "MPILauncher.sh"]]
     GiD_File fprintf $fd %s "export LD_LIBRARY_PATH=\"$dir/exec/Kratos\":\"$dir/exec/Kratos/libs\""
     GiD_File fprintf $fd %s "export PYTHONPATH=\"$dir/exec/Kratos/python35.zip\":\"$dir/exec/Kratos\":\$PYTHONPATH"
+    GiD_File fprintf $fd %s "export OMP_NUM_THREADS=1"
     GiD_File fprintf $fd %s "# Run Python using the script MainKratos.py"
     GiD_File fprintf $fd %s "mpirun --np $num_nodes \"$dir/exec/Kratos/runkratos\" MainKratos.py > \"$model_dir/$model_name.info\" 2> \"$model_dir/$model_name.err\""
     GiD_File fclose $fd
