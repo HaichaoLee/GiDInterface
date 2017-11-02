@@ -13,8 +13,8 @@ proc ShallowWater::xml::Init { } {
     Model::ForgetElements
     Model::ForgetConstitutiveLaws
     
-    Model::getConditions Elements.xml
-    Model::getConditions ConstitutiveLaws.xml
+    Model::getElements Elements.xml
+    Model::getConstitutiveLaws ConstitutiveLaws.xml
 
     Model::ForgetMaterial Air
 }
