@@ -56,12 +56,32 @@ proc SaveGIDProject { filespd } {
 }
 
 proc BeforeTransformProblemType { file oldproblemtype newproblemtype } {
-    return "-cancel-"
+    W "BeforeTransformProblemType"
+    # # return "-cancel-"
+    # WV file
+    # WV oldproblemtype
+    # WV newproblemtype
+}
+
+proc GiD_Private_Event_AfterTransformProblemType { filename old_problemtype new_problemtype } {
+
 }
 
 proc AfterTransformProblemType { filename oldproblemtype newproblemtype } {
+    W "AfterTransformProblemType"
+
+    set ::Kratos::must_quit 1
+    spdAux::SetSpatialDimmension $::KRATOS_DIMENSION
+    spdAux::activeApp $::KRATOS_APPNAME
+
+    spdAux::processIncludes
+    spdAux::parseRoutes
+
+    W [$::gid_groups_conds::doc asXML]
+# tk_messageBox -message "I know you like this application!" -type ok
     set spd_file [file join $filename.gid [file tail $filename].spd]
-    return [gid_groups_conds::transform_problemtype $spd_file]
+    W "pollo"
+    # return [gid_groups_conds::transform_problemtype $spd_file]
 }
 
 proc AfterWriteCalcFileGIDProject { filename errorflag } {
@@ -166,7 +186,7 @@ proc Kratos::InitGIDProject { dir } {
     update
     spdAux::LoadModelFiles
     gid_groups_conds::close_all_windows
-    after 500 [list spdAux::CreateWindow]
+    # after 500 [list spdAux::CreateWindow]
 }
 
 proc Kratos::LoadGiDProject { filespd } {
@@ -181,15 +201,28 @@ proc Kratos::LoadGiDProject { filespd } {
     if { ![file exists $filespd] } { return }
     set versionPT [gid_groups_conds::give_data_version]
     set kratos_private(problemtype_version) $versionPT
+    set kratos_private(current_root) $::gid_groups_conds::doc
     gid_groups_conds::open_spd_file $filespd
     set versionData [gid_groups_conds::give_data_version]
     if { [package vcompare $versionPT $versionData] == 1 } {
+        set root [$::gid_groups_conds::doc documentElement]
+        set ::Model::SpatialDimension [[$root selectNodes "value\[@n='nDim'\]"] getAttribute v ]
+        set ::KRATOS_APPNAME [[$root selectNodes "hiddenfield\[@n='activeapp'\]"] @v ]
+        W $::KRATOS_APPNAME
+        set ::KRATOS_DIMENSION $::Model::SpatialDimension
         after idle Kratos::upgrade_problemtype
+    } else {
+
+        #spdAux::reactiveApp
+        update
+        spdAux::LoadModelFiles
+        spdAux::LoadIntervalGroups
+
     }
     #spdAux::reactiveApp
-    update
-    spdAux::LoadModelFiles
-    spdAux::LoadIntervalGroups
+    # update
+    # spdAux::LoadModelFiles
+    # spdAux::LoadIntervalGroups
 }
 
 proc Kratos::RestoreVariables { } {
