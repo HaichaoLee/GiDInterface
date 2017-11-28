@@ -8,6 +8,7 @@ proc Fluid::xml::Init { } {
     variable dir
     Model::InitVariables dir $Fluid::dir
     
+    W "FLUID INIT"
     Model::getSolutionStrategies Strategies.xml
     Model::getElements Elements.xml
     Model::getMaterials Materials.xml

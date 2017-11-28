@@ -82,8 +82,10 @@ proc spdAux::EndRefreshTree { } {
 proc spdAux::processIncludes { } {
     customlib::UpdateDocument
     set root [customlib::GetBaseRoot]
-    spdAux::processAppIncludes $root
-    spdAux::processDynamicNodes $root
+    spdAux::processAppIncludes [$::gid_groups_conds::doc documentElement]
+    spdAux::processDynamicNodes [$::gid_groups_conds::doc documentElement]
+    
+    customlib::UpdateDocument
 }
 
 proc spdAux::processDynamicNodes { root } {
@@ -309,14 +311,14 @@ proc spdAux::SwitchDimAndCreateWindow { ndim } {
     parseRoutes
     
     apps::ExecuteOnCurrentXML MultiAppEvent init
+    customlib::UpdateDocument
     
-    if { $ProjectIsNew eq 0} {
+    if { $ProjectIsNew eq 0 && !$::Kratos::must_quit} {
         spdAux::CustomTreeCommon
         apps::ExecuteOnCurrentXML CustomTree ""
     }
 
     if {$TreeVisibility} {
-        customlib::UpdateDocument
         spdAux::PreChargeTree
         spdAux::TryRefreshTree
         spdAux::OpenTree
@@ -677,6 +679,8 @@ proc spdAux::injectNodalConditions { basenode args} {
 proc spdAux::injectConditions { basenode args} {
     set conditions [::Model::GetConditions {*}$args]
     spdAux::_injectCondsToTree $basenode $conditions
+    W $conditions
+    W [[$basenode parent] asXML]
     $basenode delete
 }
 

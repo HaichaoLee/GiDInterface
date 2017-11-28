@@ -70,18 +70,24 @@ proc GiD_Private_Event_AfterTransformProblemType { filename old_problemtype new_
 proc AfterTransformProblemType { filename oldproblemtype newproblemtype } {
     W "AfterTransformProblemType"
 
-    set ::Kratos::must_quit 1
+    set spdAux::ProjectIsNew 1
+    # W [$::gid_groups_conds::doc asXML]
     spdAux::SetSpatialDimmension $::KRATOS_DIMENSION
-    spdAux::activeApp $::KRATOS_APPNAME
+    apps::setActiveApp $::KRATOS_APPNAME
 
+    W "1"
+    
     spdAux::processIncludes
     spdAux::parseRoutes
-
-    W [$::gid_groups_conds::doc asXML]
+    set spdAux::ProjectIsNew 0
+    spdAux::CustomTreeCommon
+    apps::ExecuteOnCurrentXML CustomTree ""
+    W "2"
+    # W [$::gid_groups_conds::doc asXML]
 # tk_messageBox -message "I know you like this application!" -type ok
     set spd_file [file join $filename.gid [file tail $filename].spd]
     W "pollo"
-    # return [gid_groups_conds::transform_problemtype $spd_file]
+    return [gid_groups_conds::transform_problemtype $spd_file]
 }
 
 proc AfterWriteCalcFileGIDProject { filename errorflag } {

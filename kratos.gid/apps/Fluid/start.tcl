@@ -54,6 +54,8 @@ proc ::Fluid::FluidAppSelectorWindow { } {
             spdAux::SwitchDimAndCreateWindow $nd
         }
     } {
+        W "ñapa"
+        W [apps::getActiveAppId]
         [$root selectNodes "value\[@n='nDim'\]"] setAttribute v wait
         set dir $::Kratos::kratos_private(Path)
 
