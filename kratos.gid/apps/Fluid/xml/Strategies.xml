@@ -20,7 +20,6 @@
 			<!-- <parameter n="consider_periodic_conditions" pn="Consider periodic conditions" type="bool" v="false" help=""/> -->
 			<!-- <parameter n="reform_dofs_at_each_step" pn="Reform DOFs at each iteration " type="bool" v="false" help=""/> -->
 			<!-- <parameter n="time_order" pn="Time order " type="int" v="2" help=""/> -->
-			<!-- <parameter n="divergence_clearance_steps" pn="Divergence clearance steps" type="int" v="0" help=""/> -->
 			<parameter n="dynamic_tau" pn="Dynamic tau" type="double" v="1.0" help=""/>
 			<parameter n="predictor_corrector" pn="Predictor corrector" un="FLFracStepPredictorCorrector" type="bool" v="False" help="">
 				<parameter n="pressure_tolerance" pn="Pressure tolerance" type="double" v="1e-3" help="" parent="Yes"/>
@@ -80,7 +79,6 @@
 			<!-- <parameter n="consider_periodic_conditions" pn="Consider periodic conditions " type="bool" v="false"/> -->
 			<!-- <parameter n="reform_dofs_at_each_step" pn="Reform DOFs at each step" type="bool" v="false" help=""/> -->
 			<!-- <parameter n="alpha" pn="Alpha" type="double" v="-0.3" help="Bossak scheme alpha coefficient"/> -->
-			<!-- <parameter n="divergence_clearance_steps" pn="Divergence clearance steps" type="int" v="0" help=""/> -->
 			<parameter n="dynamic_tau" pn="Dynamic tau" type="double" v="1.0" help=""/>
 			<parameter n="oss_switch" pn="Use orthogonal subscales" type="combo" v="0" values="0,1" help=""/>
 			<parameter n="maximum_iterations" pn="Maximum iterations" type="integer" v="10" values="" help=""/>
